@@ -1,0 +1,7 @@
+custom.el
+%backup%~
+elpa/
+etc/
+lisp/
+tree-sitter/
+var/
