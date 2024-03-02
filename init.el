@@ -3,29 +3,31 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
+(setq use-package-always-ensure t)
+
 (use-package no-littering
-:ensure t
 :config
 (no-littering-theme-backups)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory)))
 
 
-;; appearance : toolbars
+;; appearance : toolbars ;; handled in early-init now
 ;; (tool-bar-mode -1)
 ;; (scroll-bar-mode -1)
 ;; (menu-bar-mode -1)
-
-(toggle-frame-fullscreen)
 
 ;; appearance : theme
 (load-theme 'modus-vivendi t)
 
 ;; appearance : fonts
 (set-face-attribute 'default nil :font "Consolas-13")
+(set-face-attribute 'default nil :font "FantasqueSansM Nerd Font-16")
 (set-fontset-font t 'malayalam "Chilanka")
+(set-fontset-font t 'symbol "Segoe UI Emoji")
 
 
-;; initial loading
+(global-visual-line-mode)
+;; initial loading ;; also handled in early-init
 ;; (setq inhibit-splash-screen t)
 ;; (setq visible-bell t
 ;;       ring-bell-function 'ignore)
@@ -39,6 +41,7 @@
 (global-unset-key (kbd "C-h h"))
 
 (defalias 'yes-or-no-p 'y-or-n-p)
+(setq confirm-kill-emacs 'yes-or-no-p)
 
 (global-set-key (kbd "<right-fringe> <mouse-1>") 'suspend-frame)
 
@@ -85,7 +88,7 @@
    '("<" . meow-inner-of-thing)
    '(">" . meow-bounds-of-thing)
    '("'" . meow-beginning-of-thing)
-   '("'" . meow-inner-of-thing)
+   '("," . meow-inner-of-thing)
    '("." . meow-end-of-thing)
    '("a" . meow-append)
    '("A" . meow-open-below)
@@ -137,28 +140,81 @@
    '("<escape>" . meow-last-buffer)))
 
 (use-package meow
-  :ensure t
   :config
   (meow-setup-dvorak)
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
   (meow-global-mode 1))
 
+(recentf-mode 1)
+(savehist-mode 1)
 
 (use-package vertico
-  :ensure t
   :config
-  (vertico-mode))
-
-;; (use-package which-key
-;;   :ensure t)
+  (setq vertico-cycle t)
+  (setq vertico-resize nil)
+  (vertico-mode 1))
 
 (use-package orderless
-  :ensure t
   :custom
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
+(use-package marginalia
+  :config
+  (marginalia-mode 1))
+
+(use-package consult
+  :bind (;; A recursive grep
+         ("M-s M-g" . consult-ripgrep)
+         ;; Search for files names recursively
+         ("M-s M-f" . consult-find)
+         ;; Search through the outline (headings) of the file
+         ("M-s M-o" . consult-outline)
+         ;; Search the current buffer
+         ("M-s M-l" . consult-line)
+         ;; Switch to another buffer, or bookmarked file, or recently
+         ;; opened file.
+         ("M-s M-b" . consult-buffer)))
+
+(use-package embark
+  :bind (("C-." . embark-act)
+         :map minibuffer-local-map
+         ("C-c C-c" . embark-collect)
+         ("C-c C-e" . embark-export)))
+
+(use-package embark-consult)
+
+(use-package wgrep
+  :bind ( :map grep-mode-map
+          ("e" . wgrep-change-to-wgrep-mode)
+          ("C-x C-q" . wgrep-change-to-wgrep-mode)
+          ("C-c C-c" . wgrep-finish-edit)))
+
+(use-package which-key
+  :config
+  (which-key-mode))
 
 (put 'dired-find-alternate-file 'disabled nil)
 
 (setq shell-file-name "C:/Users/sangeeth/scoop/shims/pwsh.exe")
+
+(use-package denote
+  :config
+  (setq denote-directory "c:/Users/sangeeth/OneDrive/notes/"))
+
+(use-package doom-modeline
+  :config
+  (doom-modeline-mode))
+
+(setq org-cite-global-bibliography '("c:/Users/sangeeth/OneDrive/my_library_biblatex.bib"))
+
+(use-package ace-window
+  :config
+  (global-set-key (kbd "M-o") 'ace-window)
+  (setq aw-keys '(?h ?u ?a ?s ?e ?t ?o ?n)))
+		     
+(use-package persistent-scratch
+  :config
+  (persistent-scratch-setup-default)
+  (persistent-scratch-mode))
+

@@ -1,15 +1,15 @@
-(setq frame-resize-pixelwise t
-      frame-inhibit-implied-resize t
-      frame-title-format '("%b")
-      ring-bell-function 'ignore
-      use-dialog-box t ; only for mouse events, which I seldom use
-      use-file-dialog nil
-      use-short-answers t
-      inhibit-splash-screen t
-      inhibit-startup-screen t
-      inhibit-x-resources t
-      inhibit-startup-echo-area-message user-login-name ; read the docstring
-      inhibit-startup-buffer-menu t)
+(setq frame-resize-pixelwise t)
+(setq frame-inhibit-implied-resize t)
+(setq frame-title-format '("%b"))
+(setq ring-bell-function 'ignore)
+(setq use-dialog-box t) ; only for mouse events, which I seldom use
+(setq use-file-dialog nil)
+(setq use-short-answers t)
+(setq inhibit-splash-screen t)
+(setq inhibit-startup-screen t)
+(setq inhibit-x-resources t)
+(setq inhibit-startup-echo-area-message user-login-name) ; read the docstring
+(setq inhibit-startup-buffer-menu t)
 
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
