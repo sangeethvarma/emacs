@@ -5,5 +5,6 @@ etc/
 lisp/
 tree-sitter/
 var/
+explore/
 *~
 *.elc
