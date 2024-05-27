@@ -982,13 +982,8 @@ https://github.com/bastibe/annotate.el
 ** org-gcal
 https://github.com/kidd/org-gcal.el
 #+begin_src emacs-lisp
-  (use-package org-gcal
-    :ensure t
-    :custom
-    (setq org-gcal-client-id "150619246668-qhoduop21moee5k2slvcb7viadsli79j.apps.googleusercontent.com"
-	  org-gcal-client-secret "CH3U4G4pck3dUfy-54fxDzU4"
-	  org-gcal-fetch-file-alist '(("sangeeth.s.varma@gmail.com" .  "e:/calendars/sancal.org")
-				      ("roa3kklp2af6kbtlrjaeho68t8@group.calendar.google.com" . "e:/calendars/krac.org"))))
+  ;;(use-package org-gcal
+  ;;  :ensure t)
 #+end_src
 
 * Coding
