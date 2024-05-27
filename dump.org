@@ -1,0 +1,1014 @@
+* f:/.emacs.d
+** pacakges /elpa
+0blayout
+abgaben
+ace-link
+ace-window
+ado-mode
+alert
+all-the-icons
+annotate
+archives
+async
+auctex
+avy
+beacon
+biblio
+biblio-core
+bibliothek
+bibtex-completion
+bind-key
+blacken
+bug-hunter
+calibredb
+centaur-tabs
+cfrs
+citar
+citeproc
+company
+company-web
+consult
+counsel
+counsel-ffdata
+dash
+dashboard
+dash-functional
+deferred
+diminish
+dired-hacks-utils
+doom-modeline
+doom-themes
+elfeed
+elisp-refs
+elpy
+emacsql
+emacsql-sqlite3
+embark
+embark-consult
+epl
+ess
+esxml
+f
+flx
+flycheck
+git-commit
+gntp
+helm
+helm-core
+helpful
+highlight-indentation
+ht
+htmlize
+hydra
+ivy
+ivy-rich
+key-chord
+kv
+log4e
+lsp-mode
+lsp-ui
+lv
+magit
+magit-section
+marginalia
+markdown-mode
+meow
+no-littering
+nov
+oauth2
+oauth2-request
+olivetti
+org
+org-gcal
+org-noter
+org-noter-pdftools
+org-pdftools
+org-plus-contrib
+org-ref
+org-re-reveal
+org-roam
+org-roam-bibtex
+org-web-tools
+origami
+ox-pandoc
+page-break-lines
+pandoc
+pandoc-mode
+paradox
+parsebib
+pdf-tools
+persist
+persistent-scratch
+pfuture
+pkg-info
+podcaster
+popup
+posframe
+powerline
+projectile
+py-autopep8
+pyvenv
+queue
+rainbow-delimiters
+rainbow-identifiers
+rainbow-mode
+ranger
+request
+request-deferred
+rich-minority
+s
+shrink-path
+simple-httpd
+smart-mode-line
+smex
+spinner
+string-inflection
+swiper
+tablist
+telephone-line
+transient
+use-package
+vertico
+visual-fill-column
+web-completion-data
+which-key
+with-editor
+yasnippet
+zotxt
+** init basics
+#+begin_src emacs-lisp
+
+(eval-and-compile
+(setq use-package-always-ensure nil)
+(setq use-package-always-defer nil)
+(setq use-package-always-demand nil)
+(setq use-package-expand-minimally nil)
+(setq use-package-enable-imenu-support t)
+(setq use-package-compute-statistics nil)
+;; The following is VERY IMPORTANT.  Write hooks using their real name instead of a shorter version:
+;;  after-init ==> `after-init-hook'.
+;; This is to empower help commands with their contextual awareness,such as `describe-symbol'.
+(setq use-package-hook-name-suffix nil))
+
+;; centaur
+;; GC automatically while unfocusing the frame
+;; `focus-out-hook' is obsolete since 27.1
+(if (boundp 'after-focus-change-function)
+(add-function :after after-focus-change-function
+(lambda ()
+(unless (frame-focus-state)
+(garbage-collect))))
+(add-hook 'focus-out-hook 'garbage-collect))
+
+;; Avoid GCs while using `ivy'/`counsel'/`swiper' and `helm', etc.
+;; @see http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/
+(defun my-minibuffer-setup-hook ()
+(setq gc-cons-threshold gc-cons-upper-limit))
+
+(defun my-minibuffer-exit-hook ()
+(setq gc-cons-threshold gc-cons-threshold))
+
+(add-hook 'minibuffer-setup-hook #'my-minibuffer-setup-hook)
+(add-hook 'minibuffer-exit-hook #'my-minibuffer-exit-hook)))
+
+;;; load org config
+(use-package org)
+(let* ((conf "e:/.emacs.d/emacs-init")
+(el (concat conf ".el"))
+(org (concat conf ".org")))
+(if (file-exists-p el)
+(load-file el)
+(org-babel-load-file org)))
+
+#+end_src;; prot
+*** rebuild after exit
+#+begin_src emacs-lisp
+(defun san/rebuild-emacs-init ()
+  (message "rebuilding...")
+  (let* ((fname (expand-file-name "emacs-init" user-emacs-directory)
+	 (el (concat fname ".el"))
+	 (org (concat fname ".org")))
+    (when (file-exists-p el)
+      (delete-file el))
+    (org-babel-tangle-file org el))))
+
+(add-hook 'kill-emacs-hook san/rebuild-emacs-init)
+#+end_src
+
+** No littering
+#+begin_src emacs-lisp
+  (use-package no-littering
+    :config
+    (require 'recentf)
+    (add-to-list 'recentf-exclude no-littering-var-directory)
+    (add-to-list 'recentf-exclude no-littering-etc-directory)
+    (add-to-list 'recentf-exclude "e:/.emacs.d/elpa/")
+    (setq auto-save-file-name-transforms
+	  `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+    (setq custom-file (expand-file-name "custom.el" user-emacs-directory)))
+#+end_src
+
+** beacon mode
+#+begin_src emacs-lisp
+  (use-package beacon
+    :config
+    (beacon-mode 1))
+#+end_src
+
+** olivetti
+#+begin_src emacs-lisp
+  (use-package olivetti
+    :diminish
+    :init
+    (setq olivetti-body-width 130)
+    :hook (text-mode-hook . olivetti-mode))
+#+end_src
+** Mode-line - diminish, 
+#+begin_src emacs-lisp
+  ;;diminish
+  (use-package diminish)
+
+
+  (column-number-mode)
+
+  (setq display-time-format "%H:%M %b %d"
+	display-time-default-load-average nil)
+
+  (display-time-mode)
+
+  (display-battery-mode)
+
+  ;; (use-package telephone-line
+  ;;   :ensure
+  ;;   :init
+  ;;   (telephone-line-mode 1))
+
+  (use-package doom-modeline
+    :ensure t
+    :init (doom-modeline-mode 1)
+    :custom
+    (doom-modeline-major-mode-icon nil)
+    (doom-modeline-height 15))
+
+  ;; (sml/setup)
+  ;; (setq sml/name-width 10)
+  ;; (setq sml/mode-width 10)
+  ;; (setq sml/shorten-directory t)
+  ;; (setq sml/shorten-modes t)
+  ;; (setq sml/theme 'dark)
+#+end_src
+
+* UI Basics
+** Line and Column Numbers
+#+begin_src emacs-lisp
+  (setq display-line-numbers-type 'relative)
+  (global-display-line-numbers-mode)
+  ;; Disable line numbers for some modes
+  (dolist (mode '(term-mode-hook
+		  shell-mode-hook
+		  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+#+end_src
+** Rainbow delimiters, show-paren-mode
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :ensure
+    :hook (prog-mode-hook . rainbow-delimiters-mode))
+
+#+end_src
+** Minimise with right-fringe click
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<right-fringe> <mouse-1>") 'suspend-frame)
+#+end_src
+
+** Scrolling
+# centaur-init
+#+begin_src emacs-lisp
+  ;; ;; Mouse & Smooth Scroll
+  ;; ;; Scroll one line at a time (less "jumpy" than defaults)
+  ;; (when (display-graphic-p)
+  ;;   (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
+  ;;         mouse-wheel-progressive-speed nil))
+  ;; (setq scroll-step 1
+  ;;       scroll-margin 0
+  ;;       scroll-conservatively 100000)
+  (pixel-scroll-mode)
+#+end_src
+
+** Window-Switching
+https://github.com/abo-abo/ace-window
+#+begin_src emacs-lisp
+  (use-package ace-window
+    :ensure t
+    :config
+    (global-set-key (kbd "M-o") 'ace-window)
+    (setq aw-keys '(?h ?u ?t ?d ?e ?d ?i ?s ?a))
+    (setq aw-scope 'frame))
+#+end_src
+* Tabs
+** Centaur Tabs
+#+begin_src emacs-lisp
+  ;; (use-package centaur-tabs
+  ;;   :demand
+  ;;   :config
+  ;;   (centaur-tabs-mode t)
+  ;;   (centaur-tabs-headline-match)
+  ;;   (setq centaur-tabs-style "slant")
+  ;;   (setq centaur-tabs-gray-out-icons 'buffer)
+  ;;   (setq centaur-tabs-set-bar 'left)
+  ;;   (setq centaur-tabs-set-modified-marker nil)
+  ;;   (setq centaur-tabs-close-button "x")
+  ;;   :bind
+  ;;   ("C-<prior>" . centaur-tabs-backward)
+  ;;   ("C-<next>" . centaur-tabs-forward))
+#+end_src
+* Help
+** helpful
+https://github.com/Wilfred/helpful
+#+begin_src emacs-lisp
+  (use-package helpful
+    :ensure
+    :custom
+    (counsel-describe-function-function #'helpful-callable)
+    (counsel-describe-variable-function #'helpful-variable)
+    :bind
+    ([remap describe-function] . counsel-describe-function)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-variable] . counsel-describe-variable)
+    ([remap describe-key] . helpful-key))
+#+end_src
+
+** Which-key
+[[https://github.com/justbur/emacs-which-key][which-key]] is great for getting an overview of what keybindings are available based on the prefix keys you entered.
+#+begin_src emacs-lisp
+  ;;which-key
+  (use-package which-key
+    :ensure
+    :init (which-key-mode)
+    :diminish which-key-mode
+    :config
+    (setq which-key-idle-delay 0.3))
+#+end_src
+
+* Editing Basics
+** global auto revert mode
+#+begin_src emacs-lisp
+  (global-auto-revert-mode 1)
+#+end_src
+** delete-selection-mode
+#+begin_src emacs-lisp
+  (delete-selection-mode t)
+#+end_src
+
+** delete-backwards-char
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-h C-h") 'delete-backward-char)
+#+end_src
+
+** Spellchecking - Hunspell
+#+begin_src emacs-lisp
+  (setenv "LANG" "en_GB")
+  (use-package flyspell
+    :config
+    (add-hook 'text-mode-hook 'flyspell-mode)
+    (setq ispell-program-name "e:/bin/hunspell-1.3.2-3-w32-bin/bin/hunspell.exe"))
+#+end_src
+
+** Insert date+time at point
+https://protesilaos.com/codelog/2021-07-24-emacs-misc-custom-commands/
+#+begin_src emacs-lisp
+  (defun prot-simple-insert-date (&optional arg)
+    "Insert the current date as `prot-simple-date-specifier'.
+
+  With optional prefix ARG (\\[universal-argument]) also append the
+  current time understood as `prot-simple-time-specifier'.
+
+  When region is active, delete the highlighted text and replace it
+  with the specified date."
+    (interactive "P")
+    (let* ((date "%F")
+	   (time "%R")
+	   (format (if arg (format "%s %s" date time) date)))
+      (when (use-region-p)
+	(delete-region (region-beginning) (region-end)))
+      (insert (format-time-string format))))
+
+#+end_src
+* Meow
+#+begin_src emacs-lisp
+  (defun san-upcase-dwim (arg)
+    "Upcase words in the region, if active; if not, upcase character at point.
+  If the region is active, this function calls `upcase-region'.
+  Otherwise, it calls `upcase-char', with prefix argument passed to it
+  to upcase ARG words."
+    (interactive "*p")
+    (if (use-region-p)
+	(upcase-region (region-beginning) (region-end) (region-noncontiguous-p))
+      (upcase-char arg)))
+
+#+end_src
+https://github.com/DogLooksGood/meow/
+#+begin_src emacs-lisp
+  (defun meow-setup ()
+    (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
+    (meow-leader-define-key
+     '("1" . meow-digit-argument)
+     '("2" . meow-digit-argument)
+     '("3" . meow-digit-argument)
+     '("4" . meow-digit-argument)
+     '("5" . meow-digit-argument)
+     '("6" . meow-digit-argument)
+     '("7" . meow-digit-argument)
+     '("8" . meow-digit-argument)
+     '("9" . meow-digit-argument)
+     '("0" . meow-digit-argument)
+     '("-" . negative-argument)
+     '("<SPC>" . just-one-space))
+    (meow-normal-define-key
+     '("'" . meow-beginning-of-thing)
+     '("\"" . meow-end-of-thing)
+     '("0" . meow-expand-0)
+     '("9" . meow-expand-9)
+     '("8" . meow-expand-8)
+     '("7" . meow-expand-7)
+     '("6" . meow-expand-6)
+     '("5" . meow-expand-5)
+     '("4" . meow-expand-4)
+     '("3" . meow-expand-3)
+     '("2" . meow-expand-2)
+     '("1" . meow-expand-1)
+     '("-" . negative-argument)
+     '(";" . meow-reverse)
+     '("," . meow-inner-of-thing)
+     '("." . meow-bounds-of-thing)
+     '("<" . meow-beginning-of-thing)
+     '(">" . meow-end-of-thing)
+     '("a" . meow-append)
+     '("A" . meow-open-below)
+     '("b" . meow-back-word)
+     '("B" . meow-back-symbol)
+     '("c" . meow-change)
+     '("C" . san-upcase-dwim)
+     '("d" . delete-char)
+     '("e" . meow-line)
+     '("f" . meow-find)
+     '("F" . meow-find-expand)
+     '("g" . meow-keyboard-quit)
+     '("G" . meow-goto-line)
+     '("h" . meow-left)
+     '("H" . meow-left-expand)
+     '("i" . meow-insert)
+     '("I" . meow-open-above)
+     '("j" . meow-join)
+     '("J" . delete-indentation)
+     '("k" . meow-kill)
+     '("l" . meow-till)
+     '("L" . meow-till-expand)
+     '("m" . meow-mark-word)
+     '("M" . meow-mark-symbol)
+     '("n" . meow-next)
+     '("N" . meow-next-expand)
+     '("o" . meow-block)
+     '("O" . meow-block-expand)
+     '("p" . meow-prev)
+     '("P" . meow-prev-expand)
+     '("q" . meow-quit)
+     '("r" . meow-replace)
+     '("R" . meow-replace-save)
+     '("s" . meow-search)
+     '("S" . meow-pop-search)
+     '("t" . meow-right)
+     '("T" . meow-right-expand)
+     '("u" . undo)
+     '("v" . meow-visit)
+     '("w" . meow-next-word)
+     '("W" . meow-next-symbol)
+     '("x" . meow-save)
+     '("y" . meow-yank)
+     '("z" . meow-pop-selection)
+     '("Z" . meow-pop-all-selection)
+     '("&" . meow-query-replace)
+     '("%" . meow-query-replace-regexp)
+     '("<escape>" . meow-last-buffer)))
+  (require 'meow)
+  (meow-setup)
+  (meow-global-mode 1)
+#+end_src
+
+* Completions and Selection
+** Counsel
+#+begin_src emacs-lisp
+  (use-package counsel
+    :ensure
+    :bind (("M-x" . counsel-M-x)
+	   ("C-x b" . counsel-ibuffer)
+	   ("C-x C-f" . counsel-find-file)
+	   ("C-M-l" . counsel-imenu)
+	   ("C-c f r" . counsel-recentf)
+	   ("C-c o o" . counsel-outline)
+	   :map minibuffer-local-map
+	   ("C-r" . 'counsel-minibuffer-history))
+    :config
+    (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
+#+end_src
+
+** Ivy
+#+begin_src emacs-lisp
+  ;;ivy
+  (use-package ivy
+    :diminish
+    :bind (("C-s" . swiper)
+	   :map ivy-minibuffer-map
+	   ("TAB" . ivy-alt-done)
+	   ("C-l" . ivy-immediate-action)
+	   :map ivy-switch-buffer-map
+	   ("C-l" . ivy-done)
+	   ("C-d" . ivy-switch-buffer-kill)
+	   :map ivy-reverse-i-search-map
+	   ("C-d" . ivy-reverse-i-search-kill))
+    :init
+    (ivy-mode 1)
+    :config
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-wrap t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq enable-recursive-minibuffers t))
+#+end_src
+
+** ivy-rich
+#+begin_src emacs-lisp
+  (use-package ivy-rich
+    :ensure
+    :hook (ivy-mode-hook . ivy-rich-mode))
+
+  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+#+end_src
+
+* Org
+** setting variables
+#+begin_src emacs-lisp
+  (setq org-directory "e:/org/" org-agenda-files '("e:/org/todo.org" "e:/org/inbox.org"))
+  (setq org-hide-leading-stars t)
+#+end_src
+
+** Inline images
+#+begin_src emacs-lisp
+  (setq org-image-actual-width 500)
+#+end_src
+*** Screenshot, From Clipboard, OCR
+[[https://www.sastibe.de/2018/11/take-screenshots-straight-into-org-files-in-emacs-on-win10/][Sastibe's Data Science Blog - Take Screenshots Straight into Org Files in Emacs on Win10]]
+"Take a screenshot into a time stamped unique-named file in the  same directory as the org-buffer and insert a link to this file."
+
+#+begin_src emacs-lisp
+  (defun snip () (shell-command "snippingtool /clip"))
+
+  (defun san/org-image-file-setup (filename-prefix)
+    (let* ((dirname
+	    (concat "e:/images/"
+		    (file-name-base buffer-file-name)))
+	   (filename
+	    (concat
+	     (make-temp-name
+	      (concat dirname
+		      "/"
+		      filename-prefix
+		      "-"
+		      (format-time-string "%Y%m%d_%H%M%S-")))
+	     ".png")))
+      (when (not (file-exists-p dirname)) (make-directory dirname t))
+      (or filename)))
+
+  (defun san/save-clipboard-file (filename)
+    (shell-command (concat
+		    "powershell -command \"Add-Type -AssemblyName System.Windows.Forms;"
+		    "if ($([System.Windows.Forms.Clipboard]::ContainsImage()))"
+		    "{$image = [System.Windows.Forms.Clipboard]::GetImage();"
+		    "[System.Drawing.Bitmap]$image.Save('"
+		    filename
+		    "',[System.Drawing.Imaging.ImageFormat]::Png);"
+		    "Write-Output 'clipboard content saved as file'}"
+		    "else {Write-Output 'clipboard does not contain image data'}\"")))
+
+  (defun san/clipboard-ocr ()
+    (shell-command (concat
+		    "powershell -command \"Add-Type -AssemblyName System.Windows.Forms;"
+		    "if ($([System.Windows.Forms.Clipboard]::ContainsImage())){"
+		    "python.exe e:/Scripts/clipboard_ocr/clipboard_ocr.py;"
+		    "Write-Output 'clipboard content ocr-ed'}"
+		    "else {Write-Output 'clipboard does not contain image data'}\"")))
+
+  (defun san/save-clipboard-file-ocr (filename)
+    (san/save-clipboard-file filename)
+    (san/clipbaord-ocr))
+
+  (defun san/org-image-screenshot (&optional suspend ocr-paste)
+    (interactive)
+    (when suspend (suspend-frame))
+    (shell-command "snippingtool /clip")
+    (let ((filename (san/org-image-file-setup "ss")))
+      (san/save-clipboard-file filename)
+      (insert (concat "[[file:" filename "]]\n")))
+    (when ocr-paste (san/clipboard-ocr) (org-yank))
+    (make-frame-visible))
+
+  (defun san/org-image-clipboard (&optional ocr-paste)
+    (interactive)
+    (let ((filename (san/org-image-file-setup "cb")))
+      (san/save-clipboard-file filename)
+      (insert (concat "[[file:" filename "]]\n")))
+    (when ocr-paste (san/clipboard-ocr) (org-yank)))
+
+  (defun san/org-image-ocr-text (&optional save)
+    (when save (san/save-clipboard-file (san/org-image-file-setup "cb")))
+    (san/clipboard-ocr) (org-yank))
+
+#+end_src
+
+** Literate Documentation/Programming
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python :results output"))
+  (add-to-list 'org-structure-template-alist '("pyv" . "src python :results value :session"))
+
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((python . t)
+     (emacs-lisp . t)))
+#+end_src
+** Capture templates
+# org-capture
+**** organisation
+***** content
+***** tbc
+****** various levels of interest
+***** consumed/ing
+****** various levels of interest
+****** various stages of being finished
+****** notes made
+***** ideas
+***** tolearn
+***** tasks
+***** habit tracking
+***** day tracking
+***** people
+***** phrases/words
+*** code
+#+begin_src emacs-lisp
+  (use-package org-capture
+    :config
+    (setq org-capture-templates
+	  '(("i" "inbox" entry
+	     (file "e:/org-roam/inbox.org")
+	     "\n\n\n* %T\n** %?")
+	    ("t" "todo" entry
+	     (file "e:/org/todo.org")
+	     "\n\n* %T\n** %?")
+	    ("c" "content")
+	    ("ct" "text")
+	    ("cta" "articles" entry
+	     (file "e:/org-roam/articles.org")
+	     "\n* %T\n** %?")
+	    ("ctp" "papers" entry
+	     (file "e:/org-roam/papers.org")
+	     "\n\n* %T\n** %?")
+	    ("ctb" "books" entry
+	     (file "e:/org-roam/books.org")
+	     "\n\n* %T\n** %?")
+	    ("cv" "videos" entry
+	     (file "e:/org-roam/videos.org")
+	     "\n\n* %T\n** %?")
+	    ("ca" "audio")
+	    ("cap" "podcast" entry
+	     (file "e:/org-roam/podcasts.org")
+	     "\n\n* %T\n** %?")
+	    ("q" "quotes" entry
+	     (file "e:/org-roam/quotes.org")
+	     "\n\n* %T\n** \n%?")
+	    ("h" "habit track")
+	    ("hm" "morning!" table-line
+	     (file+heading "e:/org/habit-track.org" "Morning")
+	     "|%t|%?||||")
+	    ("p" "people" entry
+	     (file "e:/org-roam/people.org")
+	     "\n\n* %?")
+	    ("v" "verbiage" entry
+	     (file "e:/org-roam/verbiage.org")
+	     "\n\n* %?")
+	    ("m" "med track" entry
+	     (file+datetree "e:/org/med-track.org" entry)
+	     "* %?")
+	    ("b" "to learn" entry
+	     (file+datetree "e:/org/to-learn.org")
+	     "\n\n* %T :: %?")
+	    ("l" "lecture notes")
+	    ("lc" "class" entry
+	     (file+datetree "e:/org-roam/lecture_notes.org")
+	     "* %(san/select-course)\n%?" :jump-to-capture :immediate-finish)
+	    ("lw" "webinars" entry
+	     (file+datetree "e:/org-roam/webinar_notes.org")
+	     "\n* %?")
+	    ))
+    :bind (("C-c c" . org-capture)))
+
+#+end_src
+
+** hydras
+#+begin_src emacs-lisp
+  (defhydra hydra-org-headings (org-mode-map "C-c h" )
+    "headings"
+    ("i" org-metaright "demote")
+    ("o" org-metaleft "promote")
+    ("u" org-metaup "up")
+    ("d" org-metadown "down")
+    ("s" org-shiftright "shiftright")
+    ("p" org-previous-visible-heading "prev")
+    ("n" org-next-visible-heading "next")
+    ("t" counsel-org-tag "tag")
+    )
+
+  (defhydra hydra-org-images (org-mode-map "C-c i" )
+    "org"
+    ("i" org-display-inline-images "display inline images")
+    ("r" org-remove-inline-images "remove inline images")
+    ("+" (progn (setq org-image-actual-width (+ org-image-actual-width 50))(org-display-inline-images)) "+")
+    ("-" (progn (setq org-image-actual-width (- org-image-actual-width 50))(org-display-inline-images)) "-")
+    ("s" (san/org-image-screenshot nil nil) "screenshot")
+    ("p" (progn (san/org-image-clipboard nil)(org-display-inline-images)) "paste" :exit t)
+    ("o" (san/org-image-ocr-text nil)  "ocr" :exit t))
+
+#+end_src
+** Export
+#+begin_src emacs-lisp
+  
+  ;; (use-package org
+  ;;   :ensure org-plus-contrib
+  ;;   :config
+  ;;    (require 'ox-extra)
+  ;;    (ox-extras-activate '(latex-header-blocks ignore-headlines)))
+
+  (defun ox-export-to-docx-and-open ()
+    "Export the current org file as a docx via markdown."
+    (interactive)
+    (org-mode)
+    (unless (buffer-file-name) (write-file (concat "e:/org/temp4docx/" (org-get-heading) ".org")))
+    (let* ((bibfile "e:/Zotero/bibliograhpies/my_library.bib")
+	   ;; this is probably a full path
+	   (current-file (or (buffer-file-name) (concat "e:/org/temp4docx/" (org-get-heading) ".org")))
+	   (basename (file-name-sans-extension current-file))
+	   (docx-file (concat basename ".docx")))
+      (when (file-exists-p docx-file) (delete-file docx-file))
+      (shell-command (format
+		      "pandoc -s --bibliography=%s %s -o %s"
+		      bibfile current-file docx-file))
+      (org-open-file docx-file '(16))))
+
+#+end_src
+* Org-roam
+#+begin_src emacs-lisp
+  (use-package org-roam
+    :ensure t
+    :init
+    (setq org-roam-db-update-method 'immediate
+	  org-roam-directory "e:/org-roam/"
+	  org-roam-db-location "e:/.emacs.d/org-roam.db")
+    :bind (("C-c n r" . org-roam-buffer-toggle-display)
+	   ("C-c n i" . org-roam-insert)
+	   ("C-c n /" . org-roam-find-file)
+	   ("C-c n b" . org-roam-switch-to-buffer)
+	   ("C-c n d" . org-roam-find-directory)
+	   ("C-c n n" . org-roam-random-note))
+    :hook (after-init-hook . org-roam-mode))
+#+end_src
+* org-agenda
+
+* IDE
+** lsp-mode
+#+begin_src emacs-lisp
+  (defun san/lsp-mode-setup ()
+    (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+    (lsp-headerline-breadcrumb-mode))
+
+  (use-package lsp-mode
+    :commands (lsp lsp-deferred)
+    :hook (lsp-mode . san/lsp-mode-setup)
+    :init
+    (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+    :config
+    (lsp-enable-which-key-integration t))
+#+end_src
+** untabify
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c u") 'untabify)
+#+end_src
+* Referencing
+#+begin_src emacs-lisp
+  
+  (use-package org-ref
+    :config
+    (setq org-ref-default-bibliography '("e:/Zotero/bibliographies/my_library.bib")
+	  bibtex-completion-bibliography "e:/Zotero/bibliographies/my_library.bib"
+	  reftex-default-bibliography '("e:/Zotero/bibliographies/my_library.bib")))
+
+  (global-set-key (kbd "<f6>") #'org-ref-helm-insert-cite-link)
+
+  ;; Org-roam-bibtex
+  (use-package org-roam-bibtex
+    :hook (after-init-hook . org-roam-bibtex-mode))
+
+					  ;(define-key org-roam-bibtex-mode-map (kbd "C-c n a") #'orb-note-actions)
+
+#+end_src
+
+* File/Buffer Operations
+Centaur init-funcs
+#+begin_src emacs-lisp
+  ;; File and buffer
+  (defun revert-this-buffer ()
+    "Revert the current buffer."
+    (interactive)
+    (unless (minibuffer-window-active-p (selected-window))
+      (revert-buffer t t)
+      (message "Reverted this buffer")))
+  (global-set-key (kbd "C-c b r") #'revert-this-buffer)
+
+  (setq delete-by-moving-to-trash t)
+  (defun delete-this-file ()
+    "Delete the current file, and kill the buffer."
+    (interactive)
+    (unless (buffer-file-name)
+      (error "No file is currently being edited"))
+    (when (yes-or-no-p (format "Really delete '%s'?"
+			       (file-name-nondirectory buffer-file-name)))
+      (delete-file (buffer-file-name))
+      (kill-this-buffer)))
+  (global-set-key (kbd "C-c f d") #'delete-this-file)
+
+  (defun rename-this-file (new-name)
+    "Renames both current buffer and file it's visiting to NEW-NAME."
+    (interactive "sNew name: ")
+    (let ((name (buffer-name))
+	  (filename (buffer-file-name)))
+      (unless filename
+	(error "Buffer '%s' is not visiting a file!" name))
+      (progn
+	(when (file-exists-p filename)
+	  (rename-file filename new-name 1))
+	(set-visited-file-name new-name)
+	(rename-buffer new-name))))
+  (global-set-key (kbd "C-c f n n") #'rename-this-file)
+
+  (defun copy-file-name ()
+    "Copy the current buffer file name to the clipboard."
+    (interactive)
+    (if-let ((filename (if (equal major-mode 'dired-mode)
+			   default-directory
+			 (buffer-file-name))))
+	(progn
+	  (kill-new filename)
+	  (message "Copied '%s'" filename))
+      (message "WARNING: Current buffer is not attached to a file!")))
+  (global-set-key (kbd "C-c f n c") #'copy-file-name)
+
+  (defun create-scratch-buffer ()
+    "Create a scratch buffer."
+    (interactive)
+    (switch-to-buffer (get-buffer-create "*scratch*"))
+    (lisp-interaction-mode))
+  (global-set-key (kbd "C-c b s") #'create-scratch-buffer)
+  (global-set-key (kbd "<f9>") 'other-window)
+
+#+end_src
+
+* Misc Hydras
+#+begin_src emacs-lisp
+  (defhydra hydra-zoom (text-mode-map "C-c z")
+    "zoom"
+    ("h" text-scale-increase "in")
+    ("s" text-scale-decrease "out")
+    ("i" text-scale-increase "in")
+    ("o" text-scale-decrease "out"))
+
+#+end_src
+* Content Management type-thingies?
+** Bibliothek
+https://github.com/cadadr/elisp/blob/devel/bibliothek.el
+#+begin_src emacs-lisp
+  (use-package bibliothek
+    :defer t
+    :config
+    (setq bibliothek-path (list "D:/Firefox Downloads/" "D:/Telegram Downloads")))
+#+end_src
+
+** Calibredb
+#+begin_src emacs-lisp
+  (use-package calibredb
+    :defer t
+    :config
+    (setq calibredb-root-dir "E:/Library")
+    (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
+    (setq calibredb-library-alist '(("E:/Library"))))
+
+#+end_src
+
+* Ideas
+** Centaur init-basic
+- Super key
+- save-place-mode
+- savehist-mode
+- recentf
+- trailing whitespace
+  #+begin_example emacs-lisp
+  ;; Visualize TAB, (HARD) SPACE, NEWLINE
+  (setq-default show-trailing-whitespace nil) ; Don't show trailing whitespace by default
+  (defun enable-trailing-whitespace ()
+      "Show trailing spaces and delete on saving."
+      (setq show-trailing-whitespace t)
+      (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))
+
+  #+end_example
+
+* Acad Stuff
+#+begin_src emacs-lisp
+  (defvar san/tiss-course-list '(
+					  ; sem 1
+				 "Concept, History and Theories of Development"
+				 "State & Democracy"
+				 "Methods in Social Research (Qualitative)"
+				 "Data Analytics – Methods of Social Research (Quantitative) (DS & WS)"
+				 "Social Research – Design and Applications (Quantitative)"
+				 "Anthropology & Development"
+				 "Development and Social Justice"
+					  ;sem  2
+				 "Political Economy of Space, Development and Uneven Development"
+				 "Everyday Ethics and Constitutional Values"
+				 "Education, Development and Social Justice"
+				 "Modernity and Multiplicity: Critical and Experiential Histories"
+				 "Theoretical Approaches to Gender and Development"
+				 "Advanced Qualitative Research Methods"
+				 "Industrialisation, Globalisation and Labour"
+				 "Advanced Quantitative Research Methods"
+				 "Geography of Development"
+				 "Social Sector and Development"
+				 "Contemporary Indian Economy"
+					  ;sem 3
+				 "Philosophical Foundations to Development Research"
+				 "Development Economics"
+				 "Sociology of Economic Life"
+				 "Food Security and Development"
+				 "Social Exclusion in India: Caste, Tribe and Other Minorities"
+				 "Agrarian Relations, Agriculture and Development"
+				 "Effective Social Science Writing"
+				 ))
+
+  (defun san/select-course () (interactive)
+	 (completing-read "Select Course: " san/tiss-course-list))
+
+  (defun san/insert-course () (interactive) (insert (san/select-course)))
+
+#+end_src
+* Notes
+** annotate.el
+https://github.com/bastibe/annotate.el
+#+begin_src emacs-lisp
+  (use-package annotate
+    :ensure t
+    :custom
+    (setq annotate-file "e:/org-roam/annotations"))
+#+end_src
+
+* Calendar
+** org-gcal
+https://github.com/kidd/org-gcal.el
+#+begin_src emacs-lisp
+  (use-package org-gcal
+    :ensure t
+    :custom
+    (setq org-gcal-client-id "150619246668-qhoduop21moee5k2slvcb7viadsli79j.apps.googleusercontent.com"
+	  org-gcal-client-secret "CH3U4G4pck3dUfy-54fxDzU4"
+	  org-gcal-fetch-file-alist '(("sangeeth.s.varma@gmail.com" .  "e:/calendars/sancal.org")
+				      ("roa3kklp2af6kbtlrjaeho68t8@group.calendar.google.com" . "e:/calendars/krac.org"))))
+#+end_src
+
+* Coding
+
+** Python - ElPy
+#+begin_src emacs-lisp
+  ;; (use-package elpy
+  ;;   :ensure t
+  ;;   :defer t
+  ;;   :init
+  ;;   (advice-add 'python-mode :before 'elpy-enable))
+#+end_src
+
+** Python
+[[https://www.youtube.com/watch?v=jPXIP46BnNA][Emacs IDE - Python Development Configuration - SystemCrafters]]
+
+* Macros
+#+begin_src emacs-lisp
+  (fset 'join-lines
+	(kmacro-lambda-form [?e ?n ?j ?d] 0 "%d"))
+
+#+end_src
+
