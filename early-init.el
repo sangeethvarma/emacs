@@ -22,6 +22,8 @@
 
 (setq initial-scratch-message ";;; scratch buffer\n\n")
 
+;; (setq package-enable-at-startup nil)
+
 ;;; Disable graphical elements by default
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -44,8 +46,6 @@
                   file-name-handler-alist temp/emacs--file-name-handler-alist
                   vc-handled-backends temp/emacs--vc-handled-backends)))
 
-(setq package-quickstart t) ;; Allow loading from the package cache.
-
 ;; Profile emacs startup
 (add-hook 'emacs-startup-hook
           (lambda ()
@@ -56,3 +56,4 @@
                      gcs-done)))
 
 (add-hook 'after-init-hook (lambda () (set-frame-name "home")))
+
