@@ -1,4 +1,5 @@
 custom.el
+package-quickstart.el
 %backup%~
 elpa/
 etc/
