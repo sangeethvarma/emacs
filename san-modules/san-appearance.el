@@ -64,5 +64,9 @@
 		eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-
+;; (use-package olivetti
+;;   :defer
+;;   :config
+;;   (setq olivetti-body-width 130))
+  
 (provide 'san-appearance)

@@ -1,0 +1,45 @@
+* Server Computer Ideas
+** Pi 5
+|----------+------------+-------|
+| Source   | Things     | Price |
+|----------+------------+-------|
+| Digikey  | Pi 5       |  6665 |
+|          | Cooler     |   417 |
+|          | Case       |   833 |
+|          | Adapter    |   999 |
+|----------+------------+-------|
+| FabToLab | NNME HAT   |  1907 |
+|----------+------------+-------|
+| Amazon   | SSD        |  3888 |
+|          | HDMI cable |   239 |
+|          | SD Card    |   500 |
+|----------+------------+-------|
+|          |            | 15448 |
+|----------+------------+-------|
+
+** Optiplex
+|------------------+-----------------|
+| 3060             | 3020            |
+|------------------+-----------------|
+| i3 8100T         | i7 4770         |
+| 16 GB DDR4 SDRAM | 8 GB DDR3 SDRAM |
+| 480 GB SSD       | 256 GB SSD      |
+| UHD 630          | HD 4000         |
+| Win 11           | 10 Pro          |
+| Monitor (?)      | Mouse, Keyboard |
+|------------------+-----------------|
+| 13,378           | 12,999          |
+|------------------+-----------------|
+
+* TODO CV
+** Latex to Org to Latex
+** Website
+
+* LoS - Literature Management
+** Emacsian Solutions
+*** Denote
+*** Hyperbole
+*** Triples
+* try
+"${hyperb:dir}/HY-NEWS"
+"HY-NEWS#HYPERBOLE SYSTEM:L3:C6"

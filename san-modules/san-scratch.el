@@ -7,7 +7,8 @@
 (use-package persistent-scratch
   :config
   (persistent-scratch-setup-default)
-  ;; (setq persistent-scratch-scratch-buffer-p-function #'san-persistent-scratch-scratch-buffer-p)
+  (persistent-scratch-mode)
+  (setq persistent-scratch-scratch-buffer-p-function #'san-persistent-scratch-scratch-buffer-p)
   (setq persistent-scratch-what-to-save '(major-mode point)))
 
 (provide 'san-scratch)

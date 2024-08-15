@@ -1,10 +1,15 @@
 ;;; screenshotting
+(add-hook 'org-mode-hook #'org-indent-mode)
+(add-hook 'org-mode-hook #'turn-on-font-lock)
+(add-hook 'org-mode-hook #'transient-mark-mode)
 
-(defun screen-snip () (shell-command "snippingtool /clip"))
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
 
-(setq org-directory "~/OneDrive/org/")
 (defun san/org-image-file-setup (filename-prefix)
-  (let* ((dirname  (concat (expand-file-name org-directory)
+  (let* ((org-directory "~/OneDrive/org/")
+	 (dirname  (concat (expand-file-name org-directory)
 			   "images/"
 			   (file-name-base buffer-file-name)))
 	 (filename (concat dirname "/"
@@ -37,4 +42,4 @@
   (when ocr-paste (san/clipboard-ocr) (org-yank))
   (make-frame-visible))
 
-
+(provide 'san-org)

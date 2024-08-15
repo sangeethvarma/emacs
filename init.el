@@ -35,3 +35,5 @@
 (require 'san-help)
 (require 'san-editing)
 (require 'san-coding)
+(require 'san-malayalam)
+(put 'downcase-region 'disabled nil)

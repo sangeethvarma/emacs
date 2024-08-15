@@ -1,5 +1,7 @@
 ;;; scratch buffer
 
+;"scratch.org#CV:L2:C9"
+
 (use-package vimish-fold
   :config (vimish-fold-global-mode t))
 
