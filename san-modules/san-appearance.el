@@ -1,3 +1,5 @@
+;; (toggle-fullscreen)
+
 (blink-cursor-mode 0)
 
 (set-fringe-mode 10)
@@ -28,28 +30,30 @@
 (column-number-mode)
 
 ;;; fonts
-(set-face-attribute 'default nil :font "FantasqueSansM Nerd Font Regular-18")
-;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
-(set-fontset-font t 'symbol "Segoe UI Symbol")
+;; (set-face-attribute 'default nil :font "FantasqueSansM Nerd Font Regular-18")
+(set-face-attribute 'default nil :font "0xProto Nerd Font-12")
+
+;; ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
+(set-fontset-font t 'symbol "Symbols Nerd Font Mono-12")
 
 ;;; line highlighting using lin
-(use-package lin
-  :defer t
-  ;; You can use this to live update the face:
-  ;; (customize-set-variable 'lin-face 'lin-green)
-  :custom
-  (setq lin-face 'lin-blue)
-  (setq lin-mode-hooks
-        '( dired-mode-hook
-          grep-mode-hook
-          ibuffer-mode-hook
-          ilist-mode-hook
-          occur-mode-hook
-          org-agenda-mode-hook
-          pdf-outline-buffer-mode-hook
-	  package-menu-mode-hook
-          tabulated-list-mode-hook))
-  (lin-global-mode 1)) ; applies to all `lin-mode-hooks'
+;; (use-package lin
+;;   :defer t
+;;   ;; You can use this to live update the face:
+;;   ;; (customize-set-variable 'lin-face 'lin-green)
+;;   :custom
+;;   (setq lin-face 'lin-blue)
+;;   (setq lin-mode-hooks
+;;         '( dired-mode-hook
+;;           grep-mode-hook
+;;           ibuffer-mode-hook
+;;           ilist-mode-hook
+;;           occur-mode-hook
+;;           org-agenda-mode-hook
+;;           pdf-outline-buffer-mode-hook
+;; 	  package-menu-mode-hook
+;;           tabulated-list-mode-hook))
+;;   (lin-global-mode 1)) ; applies to all `lin-mode-hooks'
 
 ;;; all-the-icons
 (use-package all-the-icons
