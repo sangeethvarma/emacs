@@ -7,5 +7,6 @@ lisp/
 tree-sitter/
 var/
 explore/
+server/
 *~
 *.elc
