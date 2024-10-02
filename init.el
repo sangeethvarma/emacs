@@ -36,4 +36,8 @@
 (require 'san-editing)
 (require 'san-coding)
 (require 'san-malayalam)
+(require 'san-git)
+(require 'san-buffer-mgmt)
+(require 'san-org)
+
 (put 'downcase-region 'disabled nil)

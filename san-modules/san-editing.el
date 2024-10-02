@@ -8,6 +8,6 @@
       (back-to-indentation)
     (beginning-of-line)))
 
-(global-set-key (kbd "C-a") 'beginning-of-line-or-indentation)
+(keymap-global-set "C-a" 'beginning-of-line-or-indentation)
 
 (provide 'san-editing)
