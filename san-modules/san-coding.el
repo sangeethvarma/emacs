@@ -8,8 +8,8 @@
 ;;; eglot
 
 
-
-
+;;; powershell
+(use-package powershell)
 
 
 

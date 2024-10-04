@@ -1,5 +1,5 @@
-Param(
-  [parameter(mandatory=$true)][string]$fileName
+param(
+  [Parameter(Mandatory)][string]$fileName
 )
 $filePath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($fileName)
 Add-Type -AssemblyName System.Windows.Forms;

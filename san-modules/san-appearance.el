@@ -1,12 +1,20 @@
-;; (toggle-fullscreen)
+;; (toggle-frame-fullscreen)
+
+(defun maximize-frame ()
+  "Maximizes the active frame in Windows"
+  (interactive)
+  ;; Send a `WM_SYSCOMMAND' message to the active frame with the
+  ;; `SC_MAXIMIZE' parameter.
+  (when (eq system-type 'windows-nt)
+    (w32-send-sys-command 61488)))
+(add-hook 'window-setup-hook 'maximize-frame t)
 
 (blink-cursor-mode 0)
-
-(set-fringe-mode 10)
 
 (global-visual-line-mode) ;; TODO: set visual-line-mode if buffer width more than a certain value
 
 ;;; theme
+
 ;; (load-theme 'modus-vivendi t)
 
 ;; (use-package standard-themes
@@ -14,7 +22,7 @@
 
 (use-package ef-themes ;; ef-maris-dark
   :config
-  (load-theme 'ef-maris-dark t))
+  (load-theme 'ef-bio t))
 ;; (ef-themes-load-random)
 
 ;;; modeline
@@ -35,6 +43,12 @@
 
 ;; ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
 (set-fontset-font t 'symbol "Symbols Nerd Font Mono-12")
+
+;; Mixed-pich mode
+(use-package mixed-pitch
+  :hook
+  (text-mode . mixed-pitch-mode))
+
 
 ;;; line highlighting using lin
 ;; (use-package lin
@@ -67,6 +81,12 @@
 		shell-mode-hook
 		eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+(use-package spacious-padding
+  :custom
+  (line-spacing 3)
+  :init
+  (spacious-padding-mode 1))
 
 ;; (use-package olivetti
 ;;   :defer

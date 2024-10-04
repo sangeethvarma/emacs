@@ -2,7 +2,9 @@
   :config
   (setq vertico-cycle t)
   (setq vertico-resize t)
-  (vertico-mode 1))
+  (vertico-mode 1)
+  :custom
+  (vertico-sort-function 'vertico-sort-history-alpha))
 
 (use-package orderless
   :custom
@@ -41,6 +43,5 @@
   :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
   :init
   (all-the-icons-completion-mode))
-
 
 (provide 'san-completions)
