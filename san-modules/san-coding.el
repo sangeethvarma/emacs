@@ -11,13 +11,5 @@
 ;;; powershell
 (use-package powershell)
 
-
-
-
-
-
-
-
-
 (provide 'san-coding)
 
