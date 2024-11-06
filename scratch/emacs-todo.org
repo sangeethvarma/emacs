@@ -1,0 +1,51 @@
+
+
+* TODO emacsclient for windows
+https://scripter.co/emacsclient-on-windows/
+#+begin_src emacs-lisp
+  ;; 	(when (equal window-system 'w32)
+  ;; 	  (setq server-use-tcp t))
+
+  ;;     ;; Below needs to be set before you require 'server
+  ;;     (setq server-auth-dir
+  ;; 	  (let ((dir (concat user-emacs-directory
+  ;; 			     "server_" (format "%s_%s"
+  ;; 					       emacs-major-version
+  ;; 					       emacs-minor-version)
+  ;; 			     "_" (system-name) ; Use the var `system-name' directly
+  ;; 					    ; if using emacs older than 25.1.
+  ;; 			     "/")))
+  ;; 	    (make-directory dir :parents)
+  ;; 	    dir))
+
+  ;; (with-eval-after-load 'server
+  ;;   (when (equal window-system 'w32)
+  ;;     ;; Suppress error "directory  ~/.emacs.d/server is unsafe". It is needed
+  ;;     ;; needed for the server to start on Windows.
+  ;;     (defun server-ensure-safe-dir (dir) "Noop" t)))
+
+#+end_src
+* TODO org-kanban
+* TODO LoS
+* TODO PKM
+* TODO iterrate
+* DONE this
+* DONE that
+* DONE sth else
+
+| TODO                    | DONE     |
+|-------------------------+----------|
+| [[c:/Users/sangeeth/.config/emacs/emacs-todo.org::emacsclient for windows][emacsclient for windows]] | [[c:/Users/sangeeth/.config/emacs/emacs-todo.org::this][this]]     |
+| [[c:/Users/sangeeth/.config/emacs/emacs-todo.org::org-kanban][org-kanban]]              | [[c:/Users/sangeeth/.config/emacs/emacs-todo.org::that][that]]     |
+| [[c:/Users/sangeeth/.config/emacs/emacs-todo.org::LoS][LoS]]                     | [[c:/Users/sangeeth/.config/emacs/emacs-todo.org::sth else][sth else]] |
+| [[c:/Users/sangeeth/.config/emacs/emacs-todo.org::PKM][PKM]]                     |          |
+| [[c:/Users/sangeeth/.config/emacs/emacs-todo.org::iterrate][iterrate]]                |          |
+|                         |          |
+|                         |          |
+|                         |          |
+|                         |          |
+#+TBLFM: @1$1='(kanban-headers)::@2$1..@>$>='(kanban-zero @# $# "" 'file)
+
+(kanban-zero 2 "" 'file)
+
+

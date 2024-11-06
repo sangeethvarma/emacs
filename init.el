@@ -30,6 +30,7 @@
 ;; (put 'downcase-region 'disabled nil)
 
 (add-to-list 'load-path (locate-user-emacs-file "san-modules"))
+(add-to-list 'load-path (locate-user-emacs-file "san-elisp"))
 (require 'san-defaults)
 (require 'san-appearance)
 (require 'san-meow)

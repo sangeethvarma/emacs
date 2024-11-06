@@ -36,4 +36,8 @@
     (progn (san/save-clipboard-file (file-truename filename))
       (insert (concat "[[file:" (file-relative-name filename) "]]\n\n")))))
 
+(keymap-set org-mode-map "C-c i i" 'san/insert-clipboard-file)
+(keymap-set org-mode-map "C-c i v" 'org-toggle-inline-images)
+
+
 (provide 'san-org-images)

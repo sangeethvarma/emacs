@@ -19,15 +19,21 @@
 
 (keymap-global-set "C-c l" 'org-store-link)
 (keymap-global-set "C-c a" 'org-agenda)
-(keymap-global-set "C-c c" 'org-capture)
+;; (keymap-global-set "C-c c" 'org-capture)
 
 (use-package org-tempo
   :ensure nil
   :config
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
-  (add-to-list 'org-structure-template-alist '("kv" . "example kivy")))
+  (add-to-list 'org-structure-template-alist '("kv" . "example kivy"))
+  (add-to-list 'org-structure-template-alist '("go" . "src go")))
 
-(keymap-global-set "C-c h h" 'consult-org-heading)
+(keymap-set org-mode-map "C-c h h" 'consult-org-heading)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (python . t)))
 
 (provide 'san-org)
