@@ -28,7 +28,7 @@
 (column-number-mode)
 
 ;;; fonts
-(set-face-attribute 'default nil :font "FantasqueSansM Nerd Font Regular-18")
+(set-face-attribute 'default nil :font "0xProto Nerd Font-12")
 ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
 (set-fontset-font t 'symbol "Segoe UI Symbol")
 
