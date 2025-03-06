@@ -8,6 +8,24 @@ to upcase ARG words."
       (upcase-region (region-beginning) (region-end) (region-noncontiguous-p))
     (upcase-char arg)))
 
+(defun san/toggle-case ()
+  (interactive)
+  (when (region-active-p)
+    (let ((i 0)
+      (return-string "")
+      (input (buffer-substring-no-properties (region-beginning) (region-end))))
+      (while (< i (- (region-end) (region-beginning)))
+    (let ((current-char (substring input i (+ i 1))))
+      (if (string= (substring input i (+ i 1)) (downcase (substring input i (+ i 1))))
+          (setq return-string
+            (concat return-string (upcase (substring input i (+ i 1)))))
+        (setq return-string
+          (concat return-string (downcase (substring input i (+ i 1)))))))
+    (setq i (+ i 1)))
+      (delete-region (region-beginning) (region-end))
+      (insert return-string))))
+
+
 (defun meow-setup-dvorak ()
   (meow-leader-define-key
    '("1" . meow-digit-argument)
@@ -45,7 +63,7 @@ to upcase ARG words."
    '("b" . meow-back-word)
    '("B" . meow-back-symbol)
    '("c" . meow-change)
-   '("C" . san/upcase-dwim)
+   '("C" . san/toggle-case)
    '("d" . delete-char)
    '("e" . meow-line)
    '("f" . meow-find)

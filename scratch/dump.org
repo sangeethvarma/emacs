@@ -279,7 +279,7 @@ zotxt
 #+end_src
 ** Minimise with right-fringe click
 #+begin_src emacs-lisp
-  (global-set-key (kbd "<right-fringe> <mouse-1>") 'suspend-frame)
+  (keymap-global-set "<right-fringe> <mouse-1>" 'suspend-frame)
 #+end_src
 
 ** Scrolling
@@ -302,7 +302,7 @@ https://github.com/abo-abo/ace-window
   (use-package ace-window
     :ensure t
     :config
-    (global-set-key (kbd "M-o") 'ace-window)
+    (keymap-global-set "M-o" 'ace-window)
     (setq aw-keys '(?h ?u ?t ?d ?e ?d ?i ?s ?a))
     (setq aw-scope 'frame))
 #+end_src
@@ -363,7 +363,7 @@ https://github.com/Wilfred/helpful
 
 ** delete-backwards-char
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-h C-h") 'delete-backward-char)
+  (keymap-global-set "C-h C-h" 'delete-backward-char)
 #+end_src
 
 ** Spellchecking - Hunspell
@@ -800,7 +800,7 @@ https://github.com/DogLooksGood/meow/
 #+end_src
 ** untabify
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-c u") 'untabify)
+  (keymap-global-set "C-c u" 'untabify)
 #+end_src
 * Referencing
 #+begin_src emacs-lisp
@@ -811,7 +811,7 @@ https://github.com/DogLooksGood/meow/
 	  bibtex-completion-bibliography "e:/Zotero/bibliographies/my_library.bib"
 	  reftex-default-bibliography '("e:/Zotero/bibliographies/my_library.bib")))
 
-  (global-set-key (kbd "<f6>") #'org-ref-helm-insert-cite-link)
+  (keymap-global-set "<f6>" 'org-ref-helm-insert-cite-link)
 
   ;; Org-roam-bibtex
   (use-package org-roam-bibtex
@@ -831,7 +831,7 @@ Centaur init-funcs
     (unless (minibuffer-window-active-p (selected-window))
       (revert-buffer t t)
       (message "Reverted this buffer")))
-  (global-set-key (kbd "C-c b r") #'revert-this-buffer)
+  (keymap-global-set "C-c b r" 'revert-this-buffer)
 
   (setq delete-by-moving-to-trash t)
   (defun delete-this-file ()
@@ -843,7 +843,7 @@ Centaur init-funcs
 			       (file-name-nondirectory buffer-file-name)))
       (delete-file (buffer-file-name))
       (kill-this-buffer)))
-  (global-set-key (kbd "C-c f d") #'delete-this-file)
+  (keymap-global-set "C-c f d" 'delete-this-file)
 
   (defun rename-this-file (new-name)
     "Renames both current buffer and file it's visiting to NEW-NAME."
@@ -857,7 +857,7 @@ Centaur init-funcs
 	  (rename-file filename new-name 1))
 	(set-visited-file-name new-name)
 	(rename-buffer new-name))))
-  (global-set-key (kbd "C-c f n n") #'rename-this-file)
+  (keymap-global-set "C-c f n n" 'rename-this-file)
 
   (defun copy-file-name ()
     "Copy the current buffer file name to the clipboard."
@@ -869,14 +869,14 @@ Centaur init-funcs
 	  (kill-new filename)
 	  (message "Copied '%s'" filename))
       (message "WARNING: Current buffer is not attached to a file!")))
-  (global-set-key (kbd "C-c f n c") #'copy-file-name)
+  (keymap-global-set "C-c f n c" 'copy-file-name)
 
   (defun create-scratch-buffer ()
     "Create a scratch buffer."
     (interactive)
     (switch-to-buffer (get-buffer-create "*scratch*"))
     (lisp-interaction-mode))
-  (global-set-key (kbd "C-c b s") #'create-scratch-buffer)
+  (keymap-global-set "C-c b s" 'create-scratch-buffer)
   (global-set-key (kbd "<f9>") 'other-window)
 
 #+end_src

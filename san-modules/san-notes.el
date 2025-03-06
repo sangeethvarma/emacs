@@ -7,6 +7,6 @@
   :config
   (setq denote-directory "c:/Users/sangeeth/OneDrive/notes/"))
 
-(use-package org-noter)
+;; (use-package org-noter)
 
 (provide 'san-notes)

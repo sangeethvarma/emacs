@@ -1,6 +1,4 @@
-(setq default-transient-input-method "mozhi-malayalam")
-(set-fontset-font t 'malayalam "Chilanka")
+(setq default-transient-input-method "malayalam-mozhi")
+(set-fontset-font t 'malayalam "Chilanka-16")
 
 (provide 'san-malayalam)
-
-

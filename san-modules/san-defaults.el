@@ -1,9 +1,10 @@
-(global-unset-key (kbd "C-h h")) ;; don't display HELLO file - takes a lot of time, freezes up emacs
+;; don't display HELLO file - takes a lot of time, freezes up emacs
+(keymap-global-unset "C-h h")
 
-(global-set-key (kbd "<right-fringe> <mouse-1>") #'suspend-frame) ;; getting desktop-peek like behaviour
+(keymap-global-set "<right-fringe> <mouse-1>" 'suspend-frame) ;; getting desktop-peek like behaviour
 
 (delete-selection-mode t)
-(global-set-key (kbd "C-h C-h") 'delete-backward-char)
+(keymap-global-set "C-h C-h" 'delete-backward-char)
 
 (put 'dired-find-alternate-file 'disabled nil) ;; a in dired kills the dired buffer, then visits the current line's file or directory.
 
@@ -13,5 +14,6 @@
 
 (setq kill-do-not-save-duplicates t)
 
+(setq delete-by-moving-to-trash t)
 
 (provide 'san-defaults)
