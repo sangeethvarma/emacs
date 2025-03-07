@@ -51,3 +51,6 @@
 (require 'san-org)
 (require 'san-org-images)
 
+;; https://www.emacswiki.org/emacs/EmacsMsWindowsIntegration
+;; target for shortcut to pin to taskbar
+;; C:\Users\sangeeth\scoop\apps\emacs\current\bin\emacsclientw.exe -c -a ""
