@@ -29,8 +29,6 @@
 
 ;; (put 'downcase-region 'disabled nil)
 
-(add-to-list 'default-frame-alist '((font . "0xProto Nerd Font-12")))
-
 (add-to-list 'load-path (locate-user-emacs-file "san-modules"))
 (add-to-list 'load-path (locate-user-emacs-file "san-elisp"))
 (require 'san-defaults)
