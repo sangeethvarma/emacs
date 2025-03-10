@@ -40,8 +40,8 @@
 ;;; fonts
 (add-to-list 'default-frame-alist '(font . "0xProto Nerd Font-12"))
 (set-face-attribute 'default nil :font "0xProto Nerd Font-12")
+(set-fontset-font t 'symbol "all-the-icons")
 ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
-;; (set-fontset-font t 'symbol "Segoe UI Symbol")
 ;; (set-face-attribute 'default nil :font "FantasqueSansM Nerd Font Regular-18")
 ;; ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
 ;; (set-fontset-font t 'symbol "Symbols Nerd Font Mono-12")
