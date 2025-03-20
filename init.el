@@ -14,6 +14,8 @@
 (setq package-native-compile t)
 (setq use-package-hook-name-suffix nil)
 
+(set-default-coding-systems 'utf-8)
+
 ;;; no-littering
 (use-package no-littering
 :config

@@ -46,6 +46,11 @@
 ;; ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
 ;; (set-fontset-font t 'symbol "Symbols Nerd Font Mono-12")
 
+(use-package unicode-fonts
+   :ensure t
+   :config
+   (unicode-fonts-setup))
+
 ;; Mixed-pich mode
 (use-package mixed-pitch
   :hook
