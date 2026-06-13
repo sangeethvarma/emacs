@@ -1,0 +1,13 @@
+custom.el
+package-quickstart.el
+%backup%~
+elpa/
+etc/
+lisp/
+tree-sitter/
+var/
+explore/
+server/
+*~
+*.elc
+eln-cache/

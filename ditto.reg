@@ -1,0 +1,30 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CURRENT_USER\Software\Ditto\CutStrings]
+"emacs.exe"="^w"
+
+[HKEY_CURRENT_USER\Software\Ditto\CopyStrings]
+"emacs.exe"="%w"
+
+[HKEY_CURRENT_USER\Software\Ditto\PasteStrings]
+"emacs.exe"="{VKEY 162}{VKEY 89}"
+
+
+[HKEY_CURRENT_USER\Software\Ditto\CutStrings]
+"emacsclientw.exe"="^w"
+
+[HKEY_CURRENT_USER\Software\Ditto\CopyStrings]
+"emacsclientw.exe"="%w"
+
+[HKEY_CURRENT_USER\Software\Ditto\PasteStrings]
+"emacsclientw.exe"="{VKEY 162}{VKEY 89}"
+
+
+[HKEY_CURRENT_USER\Software\Ditto\CutStrings]
+"runemacs.exe"="^w"
+
+[HKEY_CURRENT_USER\Software\Ditto\CopyStrings]
+"runemacs.exe"="%w"
+
+[HKEY_CURRENT_USER\Software\Ditto\PasteStrings]
+"runemacs.exe"="^y"
