@@ -7,6 +7,10 @@
       (w32-send-sys-command 61488)
     (toggle-frame-maximized)))
 
+(when (eq system-type 'gnu/linux)
+  (add-to-list 'default-frame-alist '(fullscreen . fullboth))
+  (add-to-list 'default-frame-alist '(name . "Emacs")))
+
 (add-hook 'window-setup-hook 'maximize-frame t)
 
 (blink-cursor-mode 0)

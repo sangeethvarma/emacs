@@ -60,7 +60,7 @@
   (server-start))
 
 (add-to-list 'load-path (locate-user-emacs-file "san-modules"))
-(add-to-list 'load-path (locate-user-emacs-file "san-elisp"))
+;; (add-to-list 'load-path (locate-user-emacs-file "san-elisp"))
 
 (require 'san-defaults)
 (require 'san-keybindings)
@@ -73,13 +73,14 @@
 (require 'san-view-files)
 ;; (require 'san-org-images)
 (require 'san-editing)
+(require 'san-help)
 
 ;; (require 'san-modeline)
 ;; (require 'san-frame-mgmt)
 ;; (require 'san-completions)
 ;; (require 'san-windows)
 ;; (require 'san-scratch)
-;; (require 'san-help)
+
 ;; (require 'san-coding)
 ;; (require 'san-python)
 ;; (require 'san-malayalam)
