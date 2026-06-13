@@ -1,12 +1,12 @@
 ;;; -*- lexical-binding: t -*-
 
 (defun maximize-frame ()
-  "Maximizes the active frame in Windows"
+  "Maximizes the active frame"
   (interactive)
-  ;; Send a `WM_SYSCOMMAND' message to the active frame with the
-  ;; `SC_MAXIMIZE' parameter.
-  (when (eq system-type 'windows-nt)
-    (w32-send-sys-command 61488)))
+  (if (eq system-type 'windows-nt)
+      (w32-send-sys-command 61488)
+    (toggle-frame-maximized)))
+
 (add-hook 'window-setup-hook 'maximize-frame t)
 
 (blink-cursor-mode 0)
@@ -26,10 +26,10 @@
 ;; (ef-themes-load-random)
 
 ;;; fonts
-(add-to-list 'default-frame-alist '(font . "Consolas-16"))
+;; (add-to-list 'default-frame-alist '(font . "Consolas-16"))
 ;; (add-to-list 'default-frame-alist '(font . "0xProto Nerd Font-12"))
 ;; (set-face-attribute 'default nil :font "0xProto Nerd Font-12")
-(set-face-attribute 'default nil :font "Consolas-16")
+;; (set-face-attribute 'default nil :font "Consolas-16")
 ;; (set-fontset-font t 'symbol "all-the-icons")
 ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
 ;; (set-face-attribute 'default nil :font "FantasqueSansM Nerd Font Regular-18")

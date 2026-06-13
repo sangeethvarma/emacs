@@ -60,8 +60,9 @@
          :immediate-finish nil
          :kill-buffer t
          :prepend t)
-	
-	("t" "Task / TODO" entry (file "L:/notes/todo.org")
+
+	;; TODOs
+	("t" "Task / TODO" entry (file ,(expand-file-name "notes/todo.org" san-phd-dir))
          "* TODO %?\n  Captured: %U\n  Context: %a\n  %i"
          :empty-lines 1)))
 

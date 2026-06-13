@@ -1,4 +1,4 @@
-(setq org-cite-global-bibliography '("L:/references.bib"))
+(setq org-cite-global-bibliography (list (expand-file-name "references.bib" san-phd-dir)))
 
 (setq org-cite-export-processors '((latex biblatex) (t basic)))
 
@@ -16,11 +16,9 @@
   :bind (("C-c n c" . citar-insert-citation))
   :custom
   (citar-bibliography org-cite-global-bibliography)
-  (setq citar-notes-path "L:/notes/")
+  (setq citar-notes-paths (list (expand-file-name "notes/" san-phd-dir)))
   (setq citar-file-note-extensions '("org"))
-
-  ;; Tells Citar where to find PDFs if you want to open them from Emacs
-  (citar-library-paths '("L:/PDFs/")))
+  (citar-library-paths (list (expand-file-name "PDFs/" san-phd-dir))))
 
 (use-package citar-denote
   :after (citar denote)

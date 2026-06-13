@@ -27,6 +27,26 @@
 (when (file-exists-p custom-file)
   (load custom-file))
 
+;; --- WSL TO WINDOWS INTEROP BRIDGES ---
+(when (eq system-type 'gnu/linux)
+  ;; Sync system clipboard seamlessly
+  (setq select-enable-clipboard t)
+  
+  ;; Route web browsing requests through the host Windows execution layer
+  (let ((cmd-exe "/mnt/c/Windows/System32/cmd.exe")
+        (cmd-args '("/c" "start" "")))
+    (when (file-exists-p cmd-exe)
+      (setq browse-url-generic-program  cmd-exe
+            browse-url-generic-args     cmd-args
+            browse-url-browser-function 'browse-url-generic))))
+
+;;; --- GLOBAL PATH CONFIGURATION ---
+(defvar san-phd-dir
+  (if (eq system-type 'windows-nt)
+      "C:/Users/sangeeth/OneDrive/PhD/"
+    "/mnt/c/Users/sangeeth/OneDrive/PhD/")
+  "The absolute root directory for all research data synced via OneDrive.")
+
 (setopt xref-search-program 'rg)
 
 ;;; encoding - utf-8
