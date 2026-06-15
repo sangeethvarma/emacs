@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 (recentf-mode)
 (keymap-global-set "C-c r f" 'recentf)
 

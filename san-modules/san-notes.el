@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 ;;; denote
 
 (use-package denote

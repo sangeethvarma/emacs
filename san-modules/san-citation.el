@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 (setq org-cite-global-bibliography (list (expand-file-name "references.bib" san-phd-dir)))
 
 (setq org-cite-export-processors '((latex biblatex) (t basic)))

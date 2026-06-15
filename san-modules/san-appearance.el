@@ -117,9 +117,10 @@ This does not affect the actual file name on disk."
 (global-display-line-numbers-mode)
 ;; disable line numbers for some modes
 (dolist (mode '(term-mode-hook
-		shell-mode-hook
-		eshell-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+                shell-mode-hook
+                eshell-mode-hook
+                pdf-view-mode-hook))
+  (add-hook mode (lambda () (setq-local display-line-numbers nil))))
 
 (use-package spacious-padding
   :custom

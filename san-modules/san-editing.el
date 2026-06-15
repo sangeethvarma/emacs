@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 (defun beginning-of-line-or-indentation ()
   "move to beginning of line, or indentation"
   (interactive)
