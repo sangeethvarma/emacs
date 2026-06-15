@@ -8,7 +8,7 @@
     (toggle-frame-maximized)))
 
 (when (eq system-type 'gnu/linux)
-  (add-to-list 'default-frame-alist '(fullscreen . fullboth))
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
   (add-to-list 'default-frame-alist '(name . "Emacs")))
 
 (add-hook 'window-setup-hook 'maximize-frame t)
@@ -30,15 +30,17 @@
 ;; (ef-themes-load-random)
 
 ;;; fonts
-;; (add-to-list 'default-frame-alist '(font . "Consolas-16"))
+(add-to-list 'default-frame-alist '(font . "Consolas-16"))
+(set-face-attribute 'default nil :font "Consolas-16")
+(set-fontset-font t 'symbol "all-the-icons")
+;; (set-fontset-font t 'symbol "Symbols Nerd Font Mono-12")
+
 ;; (add-to-list 'default-frame-alist '(font . "0xProto Nerd Font-12"))
 ;; (set-face-attribute 'default nil :font "0xProto Nerd Font-12")
-;; (set-face-attribute 'default nil :font "Consolas-16")
-;; (set-fontset-font t 'symbol "all-the-icons")
-;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
+
 ;; (set-face-attribute 'default nil :font "FantasqueSansM Nerd Font Regular-18")
-;; ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
-;; (set-fontset-font t 'symbol "Symbols Nerd Font Mono-12")
+;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
+;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
 
 (use-package unicode-fonts
    :ensure t

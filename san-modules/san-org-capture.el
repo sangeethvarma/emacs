@@ -9,7 +9,7 @@
 
 ;; The Frictionless Capture Menu
 (setq org-capture-templates
-      '(
+      `(
         ;; Define a group key "i" for "Ideas"
         ("i" "Ideas & Brainstorms")
 

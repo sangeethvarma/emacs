@@ -7,6 +7,8 @@
 
 (delete-selection-mode t)
 (keymap-global-set "C-h C-h" 'delete-backward-char)
+(keymap-global-unset "M-d")
+(keymap-global-set "M-d" 'kill-word)
 
 (put 'dired-find-alternate-file 'disabled nil) ;; a in dired kills the dired buffer, then visits the current line's file or directory.
 

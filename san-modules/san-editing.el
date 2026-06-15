@@ -9,7 +9,9 @@
 
 (use-package flyspell
   :custom
-  (ispell-program-name "~/scoop/apps/aspell/current/bin/aspell.exe")
+  (ispell-program-name (if (eq system-type 'windows-nt)
+                           "~/scoop/apps/aspell/current/bin/aspell.exe"
+                         "aspell"))
   (setq ispell-dictionary "en_GB")
   (flyspell-mark-duplications-flag nil) ;; Writegood mode does this
   (org-fold-core-style 'overlays) ;; Fix Org mode bug

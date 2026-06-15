@@ -1,18 +1,18 @@
 ;;; denote
 
 (use-package denote
+  :custom
+  (denote-directory (expand-file-name "notes/" san-phd-dir))
   :bind
   (("C-c n n" . denote-open-or-create)
    ("C-c n l" . denote-link-or-create)
-   ("C-c n d" . denote))
-  :config
-  (setq denote-directory (expand-file-name "notes/" san-phd-dir)))
+   ("C-c n d" . denote)))
 
 ;; Start the Grasp Python backend silently
 (unless (get-process "grasp-server")
   (start-process "grasp-server" 
                  "*grasp-server-log*" 
-                 "python3" 
+                 "/home/sangeeth/.tools/grasp/.venv/bin/python" 
                  "-m" "grasp_backend" "serve" 
                  "--path" (expand-file-name "notes/-grasp__inbox.org" san-phd-dir)))
 

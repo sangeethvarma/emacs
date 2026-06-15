@@ -40,9 +40,7 @@
 
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold (* 1024 1024 20)
-                  gc-cons-percentage 0.2
-                  file-name-handler-alist temp/emacs--file-name-handler-alist
+            (setq file-name-handler-alist temp/emacs--file-name-handler-alist
                   vc-handled-backends temp/emacs--vc-handled-backends)))
 
 ;; Profile emacs startup
