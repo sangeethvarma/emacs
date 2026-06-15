@@ -69,6 +69,22 @@
   (setq doom-modeline-buffer-state-icon t)
   (doom-modeline-mode))
 
+;;; --- UNIVERSAL BUFFER TRUNCATION ENGINE ---
+(defun san/truncate-long-buffer-names ()
+  "Truncate the visible buffer name if it exceeds 30 characters, preserving the file extension.
+This does not affect the actual file name on disk."
+  (when (and buffer-file-name (not (minibufferp)))
+    (let* ((file-name (file-name-nondirectory buffer-file-name))
+           (ext (file-name-extension file-name t)) ; 't' ensures the dot is kept (e.g., ".org")
+           (base-name (file-name-sans-extension file-name))
+           (max-len 30)) ; <-- Adjust your character limit here
+      (when (> (length base-name) max-len)
+        ;; Rename the buffer, using 't' to automatically handle duplicate names safely
+        (rename-buffer (concat (substring base-name 0 max-len) "..." ext) t)))))
+
+;; Trigger this check every time any file is opened
+(add-hook 'find-file-hook #'san/truncate-long-buffer-names)
+
 (setq display-time-format "%H:%M %b %d"
 	display-time-default-load-average nil)
 

@@ -20,20 +20,21 @@
   (citar-file-note-extensions '("org"))
   (citar-library-paths (list (expand-file-name "PDFs/" san-phd-dir))))
 
-;; (use-package citar-denote
-;;   :config
-;;   (citar-denote-mode)
-;;   (setq citar-denote-keyword "bib")
-;;   :bind (("C-c n k" . citar-denote-add-citekey) ; Add a Zotero key to a note
-;; 	 ("C-c n o" . citar-denote-open-note))) ; Open the note for a specific paper
 
 (use-package citar-denote
   :init
   (citar-denote-mode 1)
   :custom
   (citar-denote-keyword "bib")
+  (citar-denote-title-format nil) ; <-- Forces the citekey as the title
   :bind (("C-c n k" . citar-denote-add-reference)
-         ("C-c n o" . citar-open)))
+         ("C-c n o" . citar-open))
+  :config
+  (advice-add 'citar-denote-add-reference :around
+              (lambda (orig-fun &rest args)
+                (cl-letf (((symbol-function 'y-or-n-p) (lambda (&rest _) nil)))
+                  (apply orig-fun args)))))
+
 
 ;;; --- NATIVE WSL CITAR PARSER ---
 (when (eq system-type 'gnu/linux)
