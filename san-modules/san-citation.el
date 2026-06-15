@@ -60,7 +60,5 @@
   ;; Instruct Citar to completely ignore its default behavior and exclusively use our parser
   (setq citar-file-parser-functions '(san/citar-wsl-file-parser)))
 
-(use-package zotxt)
-
 (provide 'san-citation)
 

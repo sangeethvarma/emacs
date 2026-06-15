@@ -9,20 +9,10 @@
 
 (keymap-global-set "C-a" 'beginning-of-line-or-indentation)
 
-(use-package flyspell
-  :custom
-  (ispell-program-name (if (eq system-type 'windows-nt)
-                           "~/scoop/apps/aspell/current/bin/aspell.exe"
-                         "aspell"))
-  (setq ispell-dictionary "en_GB")
-  (flyspell-mark-duplications-flag nil) ;; Writegood mode does this
-  (org-fold-core-style 'overlays) ;; Fix Org mode bug
-  :config
-  (ispell-set-spellchecker-params)
-  :hook
-  (text-mode . flyspell-mode)
-  :bind
-  (("C-c w s s" . ispell)
-   ("C-c w s c" . flyspell-auto-correct-previous-word)))
+(use-package jinx
+  :hook (text-mode . jinx-mode)
+  :bind (("M-$" . jinx-correct)
+         ("C-M-$" . jinx-languages)))
+
 
 (provide 'san-editing)

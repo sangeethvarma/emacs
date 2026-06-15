@@ -1,9 +1,17 @@
 ;;; -*- lexical-binding: t -*-
 
-(recentf-mode)
-(keymap-global-set "C-c r f" 'recentf)
+(use-package recentf
+  :custom
+  (recentf-max-saved-items 100)
+  :bind
+  (("C-c f r" . recentf-open)
+   ("C-c r f" . recentf))
+  :config
+  (recentf-mode 1))
 
-(savehist-mode)
+(use-package savehist
+  :config
+  (savehist-mode 1))
 
 (provide 'san-minibuffer)
 

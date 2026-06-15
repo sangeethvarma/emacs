@@ -8,6 +8,13 @@
   :custom
   (vertico-sort-function 'vertico-sort-history-alpha))
 
+(use-package corfu
+  :custom
+  (corfu-auto t)
+  (corfu-quit-no-match t)
+  :init
+  (global-corfu-mode))
+
 (use-package orderless
   :custom
   (completion-styles '(orderless basic))
@@ -40,11 +47,11 @@
 
 (use-package embark-consult)
 
-(use-package all-the-icons-completion
-  :after (marginalia all-the-icons)
-  :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
-  :init
-  (all-the-icons-completion-mode))
+(use-package nerd-icons-completion
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
 (provide 'san-completions)
 

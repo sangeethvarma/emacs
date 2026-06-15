@@ -10,6 +10,10 @@
    ("C-c n l" . denote-link-or-create)
    ("C-c n d" . denote)))
 
+(use-package consult-denote
+  :init
+  (consult-denote-mode 1))
+
 ;; Start the Grasp Python backend silently
 (unless (get-process "grasp-server")
   (start-process "grasp-server" 

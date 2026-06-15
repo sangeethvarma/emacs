@@ -32,7 +32,7 @@
 ;;; fonts
 (add-to-list 'default-frame-alist '(font . "Consolas-16"))
 (set-face-attribute 'default nil :font "Consolas-16")
-(set-fontset-font t 'symbol "all-the-icons")
+;; (set-fontset-font t 'symbol "nerd-icons")
 ;; (set-fontset-font t 'symbol "Symbols Nerd Font Mono-12")
 
 ;; (add-to-list 'default-frame-alist '(font . "0xProto Nerd Font-12"))
@@ -42,19 +42,10 @@
 ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
 ;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
 
-(use-package unicode-fonts
-   :ensure t
-   :config
-   (unicode-fonts-setup))
-
 ;; Mixed-pich mode
 (use-package mixed-pitch
   :hook
   (text-mode . mixed-pitch-mode))
-
-;;; all-the-icons
-(use-package all-the-icons
-  :if (display-graphic-p))
 
 (use-package nerd-icons)
 
