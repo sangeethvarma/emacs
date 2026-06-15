@@ -3,7 +3,7 @@
 ;; don't display HELLO file - takes a lot of time, freezes up emacs
 (keymap-global-unset "C-h h")
 
-(keymap-global-set "<right-fringe> <mouse-1>" 'suspend-frame) ;; getting desktop-peek like behaviour
+;; (keymap-global-set "<right-fringe> <mouse-1>" 'suspend-frame) ;; getting desktop-peek like behaviour
 
 (delete-selection-mode t)
 (keymap-global-set "C-h C-h" 'delete-backward-char)
