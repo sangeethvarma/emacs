@@ -20,7 +20,7 @@
                  "*grasp-server-log*" 
                  "/home/sangeeth/.tools/grasp/.venv/bin/python" 
                  "-m" "grasp_backend" "serve" 
-                 "--path" (expand-file-name "notes/-grasp__inbox.org" san-phd-dir)))
+                 "--path" "/mnt/c/Users/sangeeth/inbox/-grasp__inbox.org"))
 
 (use-package org-noter
   :custom
