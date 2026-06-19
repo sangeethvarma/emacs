@@ -55,12 +55,13 @@
 ;; (require 'san-org-images)
 (require 'san-editing)
 (require 'san-help)
+(require 'san-scratch)
 
 ;; (require 'san-modeline)
 ;; (require 'san-frame-mgmt)
 ;; (require 'san-completions)
 ;; (require 'san-windows)
-;; (require 'san-scratch)
+
 
 ;; (require 'san-coding)
 ;; (require 'san-python)
@@ -69,10 +70,6 @@
 ;; (require 'san-buffer-mgmt)
 ;; (require 'san-folding)
 ;; (require 'san-org)
-;; (require 'san-citation)
-
-
-
 
 
 ;; https://www.emacswiki.org/emacs/EmacsMsWindowsIntegration
