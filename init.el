@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 (setq package-check-signature nil)
 
 ;;; package management

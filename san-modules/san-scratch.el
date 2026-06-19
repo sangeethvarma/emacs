@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t -*-
+
 ;;; persistent scratch
 
 (defun san-persistent-scratch-scratch-buffer-p ()
