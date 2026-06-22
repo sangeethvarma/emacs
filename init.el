@@ -54,11 +54,12 @@
 (require 'san-notes)
 (require 'san-citation)
 (require 'san-org-capture)
-(require 'san-view-files)
-;; (require 'san-org-images)
 (require 'san-editing)
 (require 'san-help)
 (require 'san-scratch)
+(require 'san-view-files)
+(require 'san-org-images)
+
 
 ;; (require 'san-modeline)
 ;; (require 'san-frame-mgmt)
