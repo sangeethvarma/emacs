@@ -16,7 +16,9 @@
   (("C-c n n" . denote-open-or-create)
    ("C-c n i" . denote-link-or-create)
    ;; Use this new shortcut to instantly jump between your PhD and Startup silos
-   ("C-c n s" . denote-silos-extras-select-silo)))
+   ("C-c n s" . denote-silos-extras-select-silo))
+  :config
+  (require 'denote-silos-extras))
 
 (use-package consult-denote
   :init
@@ -26,7 +28,7 @@
 (unless (get-process "grasp-server")
   (start-process "grasp-server" 
                  "*grasp-server-log*" 
-                 "/home/sangeeth/.emacs.d/tools/grasp/.venv/bin/python" 
+                 "~/.tools/grasp/.venv/bin/python" 
                  "-m" "grasp_backend" "serve" 
                  "--path" (expand-file-name "-grasp__inbox.org" san-inbox-dir)))
 

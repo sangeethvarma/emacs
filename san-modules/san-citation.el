@@ -39,7 +39,7 @@
 
 
 ;;; --- NATIVE WSL CITAR PARSER ---
-(when (eq system-type 'gnu/linux)
+(when (and (eq system-type 'gnu/linux) (getenv "WSLENV"))
   (defun san/citar-wsl-file-parser (file-field)
     "Bypass OS pathing entirely by extracting only the filename and appending it to san-phd-dir."
     (when file-field

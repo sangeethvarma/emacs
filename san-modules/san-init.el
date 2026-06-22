@@ -9,7 +9,7 @@
   (gcmh-mode 1))
 
 ;; --- WSL TO WINDOWS INTEROP BRIDGES ---
-(when (eq system-type 'gnu/linux)
+(when (and (eq system-type 'gnu/linux) (getenv "WSLENV"))
   ;; Sync system clipboard seamlessly
   (setq select-enable-clipboard t)
   
