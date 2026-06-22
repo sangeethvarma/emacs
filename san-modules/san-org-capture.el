@@ -2,6 +2,7 @@
 
 (require 'org-capture)
 (require 'denote)
+(require 'org-protocol)
 
 ;; Define what the inside of the note looks like upon capture. 
 ;; "%?" just drops your cursor right below the front-matter so you can start typing immediately.
@@ -9,63 +10,26 @@
 
 (global-set-key (kbd "C-c c") 'org-capture)
 
-;; The Frictionless Capture Menu
 (setq org-capture-templates
       `(
-        ;; Define a group key "i" for "Ideas"
-        ("i" "Ideas & Brainstorms")
+        ;; 1. The Idea Dock (Startup/Coding ideas go to Projects)
+        ("i" "Idea Dock (Startup)" entry
+         (file ,(expand-file-name "Startup/notes/idea-dock.org" san-projects-dir))
+         "* IDEA %^{Idea Title}\n%U\n%?\n" :empty-lines 1)
 
-        ;; Template: Startup Idea
-        ("is" "Startup Idea" plain
-         (file denote-last-path)
-         #'(lambda () 
-             (let ((denote-prompts '(title))
-                   (denote-use-keywords '("startup" "idea")))
-               (denote-org-capture)))
-         :no-save t
-         :immediate-finish nil
-         :kill-buffer t
-         :prepend t)
+        ;; 2. Standard PhD Tasks (Academic work goes to PhD)
+        ("t" "PhD Task" entry
+         (file ,(expand-file-name "todo.org" san-phd-dir))
+         "* TODO %^{Task}\n%U\n%?" :empty-lines 1)
 
-        ;; Template: PhD Idea
-        ("ip" "PhD Idea" plain
-         (file denote-last-path)
-         #'(lambda () 
-             (let ((denote-prompts '(title))
-                   (denote-use-keywords '("phd" "idea")))
-               (denote-org-capture)))
-         :no-save t
-         :immediate-finish nil
-         :kill-buffer t
-         :prepend t)
+        ;; 3. Universal Inbox (Random tasks go to Inbox)
+        ("x" "Inbox Task" entry
+         (file ,(expand-file-name "todo.org" san-inbox-dir))
+         "* TODO %^{Task}\n%U\n%?" :empty-lines 1)
 
-        ;; Template: Life OS Idea
-        ("il" "Life OS Idea" plain
-         (file denote-last-path)
-         #'(lambda () 
-             (let ((denote-prompts '(title))
-                   (denote-use-keywords '("lifeos" "idea")))
-               (denote-org-capture)))
-         :no-save t
-         :immediate-finish nil
-         :kill-buffer t
-         :prepend t)
-
-        ;; Template: Random Idea
-        ("ir" "Random Idea" plain
-         (file denote-last-path)
-         #'(lambda () 
-             (let ((denote-prompts '(title))
-                   (denote-use-keywords '("random" "idea")))
-               (denote-org-capture)))
-         :no-save t
-         :immediate-finish nil
-         :kill-buffer t
-         :prepend t)
-
-	;; TODOs
-	("t" "Task / TODO" entry (file ,(expand-file-name "notes/todo.org" san-phd-dir))
-         "* TODO %?\n  Captured: %U\n  Context: %a\n  %i"
-         :empty-lines 1)))
+        ;; 4. Org-Protocol Web Capture (Fired from Windows Browser into Inbox)
+        ("w" "Web Capture" entry
+         (file ,(expand-file-name "-grasp__inbox.org" san-inbox-dir))
+         "* %a\n%U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?" :empty-lines 1)))
 
 (provide 'san-org-capture)

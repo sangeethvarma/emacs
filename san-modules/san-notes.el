@@ -4,11 +4,19 @@
 
 (use-package denote
   :custom
-  (denote-directory (expand-file-name "notes/" san-phd-dir))
+  ;; Your "Inbox" acts as the default catch-all for random notes
+  (denote-directory (expand-file-name "notes/" san-inbox-dir))
+  
+  ;; Define your strict boundaries
+  (denote-silos-extras-directories
+   (list (expand-file-name "notes/" san-phd-dir)
+         (expand-file-name "Startup/notes/" san-projects-dir)))
+  
   :bind
   (("C-c n n" . denote-open-or-create)
-   ("C-c n l" . denote-link-or-create)
-   ("C-c n d" . denote)))
+   ("C-c n i" . denote-link-or-create)
+   ;; Use this new shortcut to instantly jump between your PhD and Startup silos
+   ("C-c n s" . denote-silos-extras-select-silo)))
 
 (use-package consult-denote
   :init
@@ -18,9 +26,9 @@
 (unless (get-process "grasp-server")
   (start-process "grasp-server" 
                  "*grasp-server-log*" 
-                 "/home/sangeeth/.tools/grasp/.venv/bin/python" 
+                 "/home/sangeeth/.emacs.d/tools/grasp/.venv/bin/python" 
                  "-m" "grasp_backend" "serve" 
-                 "--path" "/mnt/c/Users/sangeeth/inbox/-grasp__inbox.org"))
+                 "--path" (expand-file-name "-grasp__inbox.org" san-inbox-dir)))
 
 (use-package org-noter
   :custom

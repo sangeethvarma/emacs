@@ -21,19 +21,4 @@
             browse-url-generic-args     cmd-args
             browse-url-browser-function 'browse-url-generic))))
 
-;;; --- GLOBAL PATH CONFIGURATION ---
-(defvar san-phd-dir
-  (if (eq system-type 'windows-nt)
-      "C:/Users/sangeeth/OneDrive/PhD/"
-    "/mnt/c/Users/sangeeth/OneDrive/PhD/")
-  "The absolute root directory for all research data synced via OneDrive.")
-
-(defun san/open-phd-dir ()
-  "Instantly open the base PhD directory in Dired."
-  (interactive)
-  (find-file san-phd-dir))
-
-;; Bind it to a convenient, globally accessible key chord
-(keymap-global-set "C-c d p" 'san/open-phd-dir)
-
 (provide 'san-init)

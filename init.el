@@ -45,6 +45,7 @@
 ;; (add-to-list 'load-path (locate-user-emacs-file "san-elisp"))
 
 (require 'san-init)
+(require 'san-paths)
 (require 'san-defaults)
 (require 'san-keybindings)
 (require 'san-appearance)
