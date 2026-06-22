@@ -3,8 +3,6 @@
 ;; don't display HELLO file - takes a lot of time, freezes up emacs
 (keymap-global-unset "C-h h")
 
-;; (keymap-global-set "<right-fringe> <mouse-1>" 'suspend-frame) ;; getting desktop-peek like behaviour
-
 (delete-selection-mode t)
 (keymap-global-set "C-h C-h" 'delete-backward-char)
 (keymap-global-unset "M-d")
@@ -41,5 +39,25 @@
 
 ;; 2. Automatically refresh buffers if the file changes on disk (via mobile sync)
 (global-auto-revert-mode 1)
+
+(defun san-smart-quit (&optional arg)
+  "Quit Emacs or close the current frame depending on the context.
+If running as a daemon, close the current client frame.
+If given a prefix argument (C-u), prompt to kill the entire Emacs server."
+  (interactive "P")
+  (if arg
+      ;; If C-u is pressed, ask for strict confirmation before killing the daemon
+      (when (yes-or-no-p "Warning: You are about to kill the entire Emacs daemon. Proceed? ")
+        (save-buffers-kill-emacs))
+    
+    ;; If no prefix argument is given
+    (if (daemonp)
+        ;; We are in a daemon: gracefully close the client frame
+        (save-buffers-kill-terminal)
+      ;; We are in a standalone instance: just kill Emacs normally
+      (save-buffers-kill-emacs))))
+
+;; Remap the default quit keybinding to new smart function
+(global-set-key (kbd "C-x C-c") #'san-smart-quit)
 
 (provide 'san-defaults)
