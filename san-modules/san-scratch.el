@@ -1,17 +1,21 @@
 ;;; -*- lexical-binding: t -*-
 
 ;;; persistent scratch and multiple scratch buffers
+
 (defun san-persistent-scratch-scratch-buffer-p ()
   "Return non-nil if the current buffer's name starts with '*scratch'."
   (string-prefix-p "*scratch" (buffer-name)))
 
-(assoc  
 (use-package persistent-scratch
   :config
-  ;; This restores saved state and turns on persistent-scratch-autosave-mode globally.
   (persistent-scratch-setup-default)
   (setq persistent-scratch-scratch-buffer-p-function #'san-persistent-scratch-scratch-buffer-p)
-  (setq persistent-scratch-what-to-save '(major-mode point)))
+  (setq persistent-scratch-what-to-save '(major-mode point))
+  
+  ;; Retroactively enable the minor mode in the default startup *scratch* buffer
+  (when (get-buffer "*scratch*")
+    (with-current-buffer "*scratch*"
+      (persistent-scratch-mode 1))))
 
 ;;; Multiple Scratch Buffer Manager
 
@@ -47,6 +51,6 @@ so that `C-x C-s' saves directly to the persistent file."
     
     (switch-to-buffer buf)))
 
-(global-set-key (kbd "C-c s") #'san-open-scratch-buffer)
+(global-set-key (kbd "C-c s") 'san-open-scratch-buffer)
 
 (provide 'san-scratch)
