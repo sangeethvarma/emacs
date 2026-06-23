@@ -1,30 +1,43 @@
 ;;; -*- lexical-binding: t -*-
-
-;;; denote
+;;; san-modules/san-notes.el
 
 (use-package denote
+  :ensure t
   :custom
-  ;; Your "Inbox" acts as the default catch-all for random notes
+  ;; "Inbox" acts as the default catch-all for random notes
   (denote-directory (expand-file-name "notes/" san-inbox-dir))
-  
-  ;; Define your strict boundaries
-  (denote-silos-extras-directories
-   (list (expand-file-name "notes/" san-phd-dir)
-         (expand-file-name "Startup/notes/" san-projects-dir)))
-  
   :bind
   (("C-c n n" . denote-open-or-create)
    ("C-c n i" . denote-link-or-create)
-   ;; Use this new shortcut to instantly jump between your PhD and Startup silos
-   ("C-c n s" . denote-silos-extras-select-silo))
-  :config
-  (require 'denote-silos-extras))
+   ("C-c n s" . san/switch-denote-silo)))
+
+(defvar san-denote-silo-alist
+  nil
+  "Association list mapping Area names to their full physical paths.")
+
+(setq san-denote-silo-alist
+      `(("📥 Inbox" . ,(expand-file-name "notes/" san-inbox-dir))
+        ("🎓 PhD" . ,(expand-file-name "notes/" san-phd-dir))
+        ("🚀 Startup" . ,(expand-file-name "notes/" san-startup-dir))
+        ("🏡 Personal Life & Health" . ,(expand-file-name "notes/" san-personal-dir))
+        ("💻 Sandbox" . ,(expand-file-name "notes/" san-sandbox-dir))))
+
+(defun san/switch-denote-silo ()
+  "Frictionless silo selection engine."
+  (interactive)
+  (let* ((chosen-name (completing-read "Select Note Silo: " (mapcar #'car san-denote-silo-alist) nil t))
+         (chosen-path (cdr (assoc chosen-name san-denote-silo-alist))))
+    (setq denote-directory chosen-path)
+    (message "Denote Context shifted to: %s" chosen-name)))
+
 
 (use-package consult-denote
   :init
-  (consult-denote-mode 1))
+  (consult-denote-mode 1)
+  :bind
+  (("C-c n g" . consult-denote-grep)
+   ("C-c n f" . consult-denote-find))
 
-;; Start the Grasp Python backend silently
 (unless (get-process "grasp-server")
   (start-process "grasp-server" 
                  "*grasp-server-log*" 

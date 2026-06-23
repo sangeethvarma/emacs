@@ -1,33 +1,44 @@
 ;;; -*- lexical-binding: t -*-
+;;; san-modules/san-org-capture.el --- Streamlined Capture Templates
 
 (require 'org-capture)
-(require 'denote)
-(require 'org-protocol)
-
-;; Define what the inside of the note looks like upon capture. 
-;; "%?" just drops your cursor right below the front-matter so you can start typing immediately.
-(setq denote-org-capture-specifiers "%?")
-
 (global-set-key (kbd "C-c c") 'org-capture)
 
 (setq org-capture-templates
       `(
-        ;; 1. The Idea Dock (Startup/Coding ideas go to Projects)
-        ("i" "Idea Dock (Startup)" entry
-         (file ,(expand-file-name "Startup/notes/idea-dock.org" san-projects-dir))
+        ("r" "PhD Research Task" entry
+         (file ,(expand-file-name "phd-todo.org" san-phd-dir))
+         "* TODO %^{Academic Reading/Writing Task} :research:\n%U\n%?" :empty-lines 1)
+        
+        ("a" "PhD Administrative Chores" entry
+         (file ,(expand-file-name "phd-todo.org" san-phd-dir))
+         "* TODO %^{Admin/Email Chore} :admin:\n%U\n%?" :empty-lines 1)
+
+        ("s" "Startup Idea / Task" entry
+         (file ,(expand-file-name "iterrate-todo.org" san-startup-dir))
+         "* TODO %^{Startup Action}\n%U\n%?" :empty-lines 1)
+         
+        ("i" "Idea Dock (Startup Notes)" entry
+         (file ,(expand-file-name "notes/idea-dock.org" san-startup-dir))
          "* IDEA %^{Idea Title}\n%U\n%?\n" :empty-lines 1)
 
-        ;; 2. Standard PhD Tasks (Academic work goes to PhD)
-        ("t" "PhD Task" entry
-         (file ,(expand-file-name "todo.org" san-phd-dir))
-         "* TODO %^{Task}\n%U\n%?" :empty-lines 1)
+        ;; Integrated Personal Area templates pointing to the same file with separate tags
+        ("h" "Health & Fitness Target" entry
+         (file ,(expand-file-name "personal-todo.org" san-personal-dir))
+         "* TODO %^{Fitness Metric/Routine} :health:\n%U\n%?" :empty-lines 1)
 
-        ;; 3. Universal Inbox (Random tasks go to Inbox)
-        ("x" "Inbox Task" entry
-         (file ,(expand-file-name "todo.org" san-inbox-dir))
-         "* TODO %^{Task}\n%U\n%?" :empty-lines 1)
+        ("l" "Life Maintenance Item" entry
+         (file ,(expand-file-name "personal-todo.org" san-personal-dir))
+         "* TODO %^{Logistical/Finance Task} :life:\n%U\n%?" :empty-lines 1)
 
-        ;; 4. Org-Protocol Web Capture (Fired from Windows Browser into Inbox)
+        ("j" "Sandbox / Hobby Script" entry
+         (file ,(expand-file-name "sandbox-todo.org" san-sandbox-dir))
+         "* TODO %^{Experiment/Script Idea}\n%U\n%?" :empty-lines 1)
+
+        ("x" "Universal Inbox Funnel" entry
+         (file ,(expand-file-name "inbox.org" san-inbox-dir))
+         "* TODO %^{Fleeting Thought}\n%U\n%?" :empty-lines 1)
+
         ("w" "Web Capture" entry
          (file ,(expand-file-name "-grasp__inbox.org" san-inbox-dir))
          "* %a\n%U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n%?" :empty-lines 1)))
