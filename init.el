@@ -54,6 +54,7 @@
 (require 'san-notes)
 (require 'san-citation)
 (require 'san-org-capture)
+(require 'san-project-mgmt)
 (require 'san-editing)
 (require 'san-help)
 (require 'san-scratch)
