@@ -8,6 +8,15 @@
   :custom
   (vertico-sort-function 'vertico-sort-history-alpha))
 
+(use-package vertico-directory
+  :after vertico
+  :ensure nil ; Built natively into the main vertico package distribution
+  :bind (:map vertico-map
+              ("DEL" . vertico-directory-up)
+              ("M-DEL" . vertico-directory-delete-word))
+  ;; Clean up path shadowing when you type a new drive letter or absolute path
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
 (use-package corfu
   :custom
   (corfu-auto t)
