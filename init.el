@@ -48,6 +48,7 @@
 (require 'san-paths)
 (require 'san-defaults)
 (require 'san-keybindings)
+(require 'san-fonts)
 (require 'san-appearance)
 (require 'san-completions)
 (require 'san-minibuffer)

@@ -29,27 +29,6 @@
   (load-theme 'ef-bio t))
 ;; (ef-themes-load-random)
 
-;;; fonts
-(add-to-list 'default-frame-alist '(font . "Consolas-16"))
-(set-face-attribute 'default nil :font "Consolas-16")
-;; (set-fontset-font t 'symbol "nerd-icons")
-;; (set-fontset-font t 'symbol "Symbols Nerd Font Mono-12")
-
-;; (add-to-list 'default-frame-alist '(font . "0xProto Nerd Font-12"))
-;; (set-face-attribute 'default nil :font "0xProto Nerd Font-12")
-
-;; (set-face-attribute 'default nil :font "FantasqueSansM Nerd Font Regular-18")
-;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
-;; (set-face-attribute 'default nil :font "FiraCode Nerd Font-16")
-
-;; Mixed-pich mode
-(use-package mixed-pitch
-  :hook
-  (text-mode . mixed-pitch-mode))
-
-(use-package nerd-icons)
-
-
 ;;; modeline
 (use-package doom-modeline
   :config
@@ -105,13 +84,9 @@ This does not affect the actual file name on disk."
 
 ;;; line numbers
 (setq display-line-numbers-type 'relative)
-(global-display-line-numbers-mode)
-;; disable line numbers for some modes
-(dolist (mode '(term-mode-hook
-                shell-mode-hook
-                eshell-mode-hook
-                pdf-view-mode-hook))
-  (add-hook mode (lambda () (setq-local display-line-numbers nil))))
+;; Safely activate line numbers only for programming and config tracks
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(add-hook 'conf-mode-hook #'display-line-numbers-mode)
 
 (use-package spacious-padding
   :custom
