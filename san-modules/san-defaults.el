@@ -1,81 +1,69 @@
 ;;; san-defaults.el --- Core Editor Behavior & Quality of Life Defaults -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; This module defines global default options, file system preferences, and 
-;; environment overrides. It contains specific safeguards for mobile Syncthing 
-;; file changes, alongside explicit execution adjustments for Windows-native
-;; binaries loaded through the Scoop package manager.
+;; This module establishes standard, predictable baseline preferences for the 
+;; editor's internal engine. It governs default key maps, global variables,
+;; automatic file synchronization behaviors, and specific settings for operating
+;; natively under a Windows shell/Scoop package layout.
 
 ;;; Code:
 
-;; =============================================================================
-;; 1. Core Keybinding Adjustments & Cleanups
-;; =============================================================================
+;;; Global Key Overrides & Selection Behaviors
+;; ---------------------------------------------------------------------
+;; Adjusts underlying defaults to match modern, predictable text-editing habits.
 
-;; Disable the default, easily mis-triggered introductory "hello" language screen
-(keymap-global-unset "C-h h")
+(keymap-global-unset "C-h h")           ; Unset the dangerous, accidental 'hello world' help key
+(delete-selection-mode 1)               ; Typing while text is selected overrides/deletes it
+(keymap-global-set "C-h C-h" #'delete-backward-char) ; Map comfortable backspace alternative
+(keymap-global-set "M-d" #'kill-word)   ; Fast word erasure
 
-;; Replace active text selections immediately when typing over them
-(delete-selection-mode 1)
+(put 'dired-find-alternate-file 'disabled nil) ; Enable reuse of buffers in Dired mode
 
-;; Standardize intuitive backspace and word removal behaviors
-(keymap-global-set "C-h C-h" #'delete-backward-char)
-(keymap-global-set "M-d" #'kill-word)
+;;; Window Management & Trash Preferences
+;; ---------------------------------------------------------------------
+;; Dictates interactive frame routing and asset safety rules.
 
-;; Enable alternate-file opening in Dired (reusing the same buffer) without warning prompts
-(put 'dired-find-alternate-file 'disabled nil)
+(setq help-window-select t              ; Automatically move point focus to pop-up help windows
+      kill-do-not-save-duplicates t     ; Prevent cluttering the kill-ring with identical entries
+      delete-by-moving-to-trash t       ; Delete files to system trash instead of wiping them permanently
+      dired-listing-switches "-alh --group-directories-first") ; Clean, readable folder sort
 
-;; =============================================================================
-;; 2. Window Management & Trash Preferences
-;; =============================================================================
-
-(setq help-window-select t              ; Auto-focus help windows when they pop up
-      kill-do-not-save-duplicates t     ; Prevent identical text clips from polluting the kill-ring
-      delete-by-moving-to-trash t       ; Send deleted items to system trash instead of hard unlinking
-      dired-listing-switches "-alh --group-directories-first") ; Clean, categorized Dired files view
-
-;; =============================================================================
-;; 3. Windows Native & Scoop Package Manager Optimization Layer
-;; =============================================================================
-;; Corrects execution pathways when Emacs is running natively on the Windows Host.
-;; Ensures tools installed via Scoop (e.g., PowerShell, GNU Coreutils, Ripgrep) map
-;; and encode text output perfectly without interface locking.
+;;; Windows Native & Scoop Package Manager Optimization Layer
+;; ---------------------------------------------------------------------
+;; If execution is running directly on the native Windows NT host, this block routes
+;; shell execution loops through cross-platform PowerShell Core installed via Scoop.
+;; It also updates the directory parsing engine to use GNU coreutils binaries.
 
 (when (eq system-type 'windows-nt)
-  ;; Route shell subprocess execution to PowerShell Core (pwsh) natively
   (setq shell-file-name "~/scoop/apps/pwsh/current/pwsh.exe" 
         comint-process-echoes 0)
   
-  ;; Map Dired directory listings to GNU 'ls' instead of using the fragile native fallback
-  (setq insert-directory-program (expand-file-name "~/scoop/apps/coreutils/current/bin/ls.exe"))
+  ;; Bind insertion tracking to native GNU Coreutils binary paths
+  (setq insert-directory-program (expand-file-name "apps/coreutils/current/bin/ls.exe" (getenv "USERPROFILE")))
   (setq dired-use-ls-dired t)
   
-  ;; Configure native Ripgrep paths and optimize standard stream line-endings
-  (setq rg-executable (expand-file-name "~/scoop/apps/ripgrep/current/rg.exe"))
+  ;; Force UTF-8 byte serialization patterns across background Ripgrep processes
+  (setq rg-executable (expand-file-name "apps/ripgrep/current/rg.exe" (getenv "USERPROFILE")))
   (add-to-list 'process-coding-system-alist '("rg\\.exe" . (utf-8-unix . utf-8-unix))))
 
-;; =============================================================================
-;; 4. Syncthing Mobile Safeguards & Integrity Anchors
-;; =============================================================================
-;; Prevents cross-platform file conflicts caused by mobile background syncing applications.
+;;; Automated File Sync Integrity Guarding
+;; ---------------------------------------------------------------------
+;; Mitigates race-conditions, file synchronization locks, and automated backup hooks
+;; when editing across multiple active file system contexts.
 
-;; Turn off temporary `. #file#` lockfiles which can trigger race conditions and 
-;; replication loops across background file-syncing agents (like Syncthing or Logan).
-(setq create-lockfiles nil)
+(setq create-lockfiles nil)             ; Prevent creation of intrusive .# lock files
+(global-auto-revert-mode 1)             ; Automatically reload buffers if modified externally on disk
 
-;; Instantly refresh Emacs file buffers when they are modified on disk externally
-(global-auto-revert-mode 1)
-
-;; =============================================================================
-;; 5. Intelligent Instance Termination Engine (Daemon Aware)
-;; =============================================================================
+;;; Intelligent Instance Termination Engine (Daemon Aware)
+;; ---------------------------------------------------------------------
+;; Overrides the standard close window command. If running inside a persistent background
+;; daemon process, it terminates the client view connection context without killing the
+;; master core environment, unless explicitly passed a universal prefix argument.
 
 (defun san/smart-quit (&optional arg)
   "Intelligently handle application termination sequences.
-If running inside an active Emacs server session (Daemon client frame), closes 
-the visual client window while keeping the underlying process server alive.
-If a hard modifier ARG is supplied (via C-u prefix), asks to kill the entire 
-core background process."
+Closes client connection buffers safely if evaluated inside a daemon session, 
+or requests core engine execution shutdown when supplied with a prefix ARG."
   (interactive "P")
   (if arg
       (when (yes-or-no-p "Warning: You are about to kill the entire Emacs daemon. Proceed? ")
@@ -84,7 +72,6 @@ core background process."
         (save-buffers-kill-terminal)
       (save-buffers-kill-emacs))))
 
-;; Bind our streamlined termination logic to the default global exit sequence
 (keymap-global-set "C-x C-c" #'san/smart-quit)
 
 (provide 'san-defaults)

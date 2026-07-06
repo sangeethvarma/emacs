@@ -1,40 +1,37 @@
 ;;; san-elfeed.el --- RSS Feed Reader & News Aggregator Layer -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; This module manages the automated feed retrieval and aggregation workspace.
-;; It seamlessly orchestrates:
-;; 1. Elfeed: A database-driven high-performance feed client for Emacs.
-;; 2. Elfeed-Org: Streamlines subscription parsing by pulling raw feed links 
-;;    directly out of a cleanly managed Org document inside your PhD area.
-;;
-;; Keybindings:
-;; C-x w -> Launches the central interactive Elfeed search interface.
+;; This module configures the Elfeed RSS syndication reader. It parses academic
+;; journals, policy newsletters, and site feeds asynchronously, anchoring active 
+;; subscriptions within a structured Org-mode file layout.
 
 ;;; Code:
 
-;; =============================================================================
-;; 1. Elfeed Core Engine Configuration
-;; =============================================================================
+(require 'san-paths)
+
+;;; Elfeed Core Aggregation Engine
+;; ---------------------------------------------------------------------
+;; Provisions the primary news and journal interface deck. Binds the core dashboard 
+;; entry key globally and configures baseline chronological filtering rules.
 
 (use-package elfeed
   :ensure t
-  :bind (("C-x w" . elfeed))            ; Defer loading until the interface dashboard is triggered
+  :bind (("C-x w" . elfeed))               ; Rapid dashboard invocation key
   :config
-  ;; Initialize clean default search criteria (filters out older read logs by default)
-  (setq elfeed-search-filter "@6-months-ago +unread"))
+  (setq elfeed-search-filter "@6-months-ago +unread")) ; Restrict initial feed view to fresh, unread items
 
-;; =============================================================================
-;; 2. Elfeed-Org Subscription Integration (Siloed Feeds Mapping)
-;; =============================================================================
+;;; Elfeed-Org Subscription Integration
+;; ---------------------------------------------------------------------
+;; Extends the database engine to manage feed URLs declaratively within an Org file 
+;; structure located straight inside your PhD academic workspace directory.
 
 (use-package elfeed-org
   :ensure t
   :after elfeed
   :custom
-  ;; Safely anchors feed listings file inside your primary PARA academic storage root
+  ;; Anchor subscription configuration trees explicitly to your clean PhD area directory
   (rmh-elfeed-org-files (list (expand-file-name "elfeed.org" san-phd-dir)))
   :config
-  ;; Initialize the layout transformation tree to intercept Elfeed synchronization passes
   (elfeed-org))
 
 (provide 'san-elfeed)

@@ -3,14 +3,13 @@
 ;;; Commentary:
 ;; This module handles high-priority runtime initializations that must execute
 ;; immediately after the package manager layer is ready. It focuses on:
-;; 1. Garbage Collection Management (GCMH) to eliminate editing stutter.
-;; 2. WSL-to-Windows interoperability (Clipboard mapping and host browser forwarding).
+;; - Garbage Collection Management (GCMH) to eliminate editing stutter.
+;; - WSL-to-Windows interoperability (Clipboard mapping and host browser forwarding).
 
 ;;; Code:
 
-;; =============================================================================
-;; 1. Garbage Collection Magic Hack (GCMH) Configuration
-;; =============================================================================
+;;; Garbage Collection Management (GCMH)
+;; ---------------------------------------------------------------------
 ;; Prevents Emacs from garbage collecting frequently during active typing or mini-buffer
 ;; completion updates. Instead, it expands the allocation memory ceiling up to 1GB
 ;; while you are working, and forces a collection pass once you stop typing (idle state).
@@ -24,9 +23,8 @@
   :config
   (gcmh-mode 1))
 
-;; =============================================================================
-;; 2. WSL2 Host Platform Integration Layer
-;; =============================================================================
+;;; WSL2 Host Platform Integration Layer
+;; ---------------------------------------------------------------------
 ;; If Emacs detects it is running inside a WSL2 Linux container, it builds structural
 ;; interop bridges to seamlessly pass URLs and clipboard data back to the Windows host.
 

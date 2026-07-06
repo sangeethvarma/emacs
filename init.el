@@ -1,104 +1,98 @@
 ;;; init.el --- Master Control Deck & Core Module Orchestration Engine -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; This is the primary boot routing station of your custom Emacs configuration.
-;; It sets up archive connections, locks defaults to UTF-8 encoding, isolates 
-;; background telemetry files via 'no-littering', launches a persistent background 
-;; application server, and attaches every custom operational module sequentially.
+;; Primary workspace routing station. It hooks third-party package networks, standardizes 
+;; global UTF-8 serialization, insulates transient cache directories, launches structural 
+;; communication servers, and appends user configurations sequentially.
 
 ;;; Code:
 
-;; =============================================================================
-;; 1. Package Manager & Repository Configuration
-;; =============================================================================
+;;; Package Architecture & Repository Ecosystem
+;; ---------------------------------------------------------------------
+;; Establishes connection pathways to third-party ELPA/MELPA archives and 
+;; optimizes bytecode compilation flags during execution setup steps.
 
-(setq package-check-signature nil)      ; Skip package signature lookups if network checks hang
+(setq package-check-signature nil)
 (require 'package)
 (require 'use-package)
 
-;; Append the MELPA distribution server cleanly into your package download list
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
-;; Define strict download priority weights across your active package archives
 (setq package-archive-priorities
       '(("gnu-elpa" . 3)
         ("melpa" . 2)
         ("nongnu" . 1)))
 
-;; Performance configuration properties for package loading
-(setq package-install-upgrade-built-in t   ; Allow upgrading built-in packages seamlessly
-      use-package-always-ensure t          ; Automatically download missing packages via use-package
-      package-native-compile t             ; Async compile packages into high-speed native code
-      use-package-hook-name-suffix nil)    ; Stop use-package from rewriting hook labels trailing string formats
+(setq package-install-upgrade-built-in t
+      use-package-always-ensure t
+      package-native-compile t
+      use-package-hook-name-suffix nil)
 
-;; =============================================================================
-;; 2. System Text Encoding Model
-;; =============================================================================
+;;; System Text Encoding Definition
+;; ---------------------------------------------------------------------
+;; Enforces strict UTF-8 string serialization parameters across buffer generation 
+;; steps and subshell communication sockets.
 
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
 
-;; =============================================================================
-;; 3. File System Insulation Layer (No-Littering Architecture)
-;; =============================================================================
-;; Forces third-party packages to write temporary, session, and backup assets 
-;; into automated folders inside your `.emacs.d/var/` and `/etc/` paths, keeping 
-;; your root dotfiles folder perfectly clean.
+;;; File System Insulation Layer (No-Littering Setup)
+;; ---------------------------------------------------------------------
+;; Automatically paths transient lock files, historical backups, and automatic 
+;; data states into isolated user sub-directories to protect vault cleanliness.
 
 (use-package no-littering
   :ensure t
   :config
   (no-littering-theme-backups))
 
-;; Extract automated interactive configurations into their own independent storage track
+;; Redirect custom UI adjustments out of primary configurations
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
   (load custom-file))
 
-;; Route standard identifier searches (`xref`) to utilize Ripgrep
 (setopt xref-search-program 'rg)
 
-;; =============================================================================
-;; 4. Long-Lived Emacs Server Lifecycle Initialization
-;; =============================================================================
-;; Launches a background socket connection. This allows fast visual terminal boxes 
-;; (like `emacsclientw.exe`) to mount instant workspace sessions in milliseconds 
-;; without paying boot lookup costs multiple times.
+;;; Core Emacs Server Lifecycle Management
+;; ---------------------------------------------------------------------
+;; Provisions an automated socket listening connection layer, enabling high-speed 
+;; external script interaction and web protocols without launching duplicate instances.
 
 (require 'server)
 (setq server-auth-dir (expand-file-name "server" user-emacs-directory))
 (unless (server-running-p)
   (server-start))
 
-;; =============================================================================
-;; 5. Modular Configuration Loading Sequence
-;; =============================================================================
-;; Includes your custom modules directory inside the Emacs search path and loads 
-;; your isolated runtime environments sequentially.
+;;; Modular Configuration Loading Sequence
+;; ---------------------------------------------------------------------
+;; Registers your custom development modules directory and requires each module 
+;; feature sequentially to compose the complete operational workspace environment.
 
 (add-to-list 'load-path (locate-user-emacs-file "san-modules"))
 
-;; Core Prerequisites & Environment Mappings
-(require 'san-init)         ; Runtime platform adjustments and garbage collection tracking
-(require 'san-paths)        ; Cross-platform absolute directory maps (Windows vs WSL2)
-(require 'san-defaults)     ; Core editor parameters and Scoop binary mapping adjustments
+;; Initialization and structural variables
+(require 'san-init)
+(require 'san-paths)
+(require 'san-defaults)
 
-;; Interface, Navigation, & Modals
-(require 'san-keybindings)  ; Modal editing matrix (Meow-Dvorak) and smart window movement
-(require 'san-fonts)        ; True type fonts mapping (Consolas) and Malayalam rendering rules
-(require 'san-appearance)   ; Visual frames maximization, Ef-Themes, and status line structures
-(require 'san-completions)  ; Minibuffer completion stack (Vertico, Corfu, Consult, Embark)
-(require 'san-minibuffer)   ; Persistent inputs tracking and recent files search filters
+;; Interface, completions, and layout engines
+(require 'san-keybindings)
+(require 'san-fonts)
+(require 'san-appearance)
+(require 'san-completions)
+(require 'san-minibuffer)
 
-;; Knowledge Base, Academic Reading, & Workspaces
-(require 'san-notes)        ; Multi-silo note structures (Denote) and Grasp link capture
-(require 'san-citation)     ; Bibliography databases (Citar-Denote) and path translation
-(require 'san-org-capture)  ; Context-isolated fast intake data matrices
-(require 'san-project-mgmt) ; Context-isolation agenda workspaces and PARA refiling engines
-(require 'san-editing)      ; Smart home key movement and high-speed spellcheck (Jinx)
-(require 'san-help)         ; Rich documentation inspectors (Helpful) and visual keys discoverer
-(require 'san-scratch)      ; Persistent code testing pads (Markdown, Python, Org, Elisp)
-(require 'san-view-files)   ; Native PDF parsing tools and Markdown reading hooks
-(require 'san-org-images)   ; Direct clipboard image asset ingestion bridge
+;; Knowledge engines, agenda frameworks, and utilities
+(require 'san-notes)
+(require 'san-citation)
+(require 'san-project-mgmt)
+(require 'san-org-capture)
+(require 'san-editing)
+(require 'san-help)
+(require 'san-scratch)
+(require 'san-view-files)
+(require 'san-org-images)
+;; (require 'san-llm)
+;; (require 'san-elfeed)
 
 ;;; init.el ends here

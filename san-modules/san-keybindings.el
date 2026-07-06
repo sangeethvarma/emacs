@@ -1,26 +1,26 @@
 ;;; san-keybindings.el --- Modal Editing Engine & Global Keymaps -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; This module establishes the structural command matrix for the entire environment.
-;; 1. Leverages built-in native Emacs DWIM (Do What I Mean) text engines.
-;; 2. Implements a custom text case-inversion utility for regions.
-;; 3. Sets up Meow modal editing explicitly customized for the Dvorak layout.
-;; 4. Builds a smart-switching frame/window navigator combining other-window and ace-window.
+;; This module establishes the core input mechanics and modal workspace layout.
+;; It utilizes modern Emacs 29+ key configuration primitives to set up:
+;; - Native case-transformation functions and string region counters.
+;; - The Meow modal editing framework, customized specifically for a Dvorak keyboard layout.
+;; - Spatial window routing and directional frame-jumping via Ace-Window.
 
 ;;; Code:
 
-;; =============================================================================
-;; 1. Native DWIM Text Transformations & Region Case Inversion
-;; =============================================================================
+;;; Native Case Transformations & String Inversion
+;; ---------------------------------------------------------------------
+;; Binds built-in C-optimized primitives to standard shortcuts, and provides a custom
+;; utility to selectively toggle case characters across active visual regions.
 
-;; Remap standard upper/lower transformations to use native built-in DWIM engines.
-;; These intelligently target either the active region, the word at point, or subwords.
-(keymap-global-set "M-u" #'upcase-dwim)
-(keymap-global-set "M-l" #'downcase-dwim)
+(keymap-global-set "M-u" #'upcase-dwim)   ; Intelligently capitalize word or active selection
+(keymap-global-set "M-l" #'downcase-dwim) ; Intelligently lowercase word or active selection
 
 (defun san/toggle-case ()
   "Invert the casing of all characters within the currently active region.
-If no region is active, raises a clean user-error without affecting text state."
+Iterates through each individual byte position inside the active selection boundary,
+transforming uppercase letters to lowercase and vice-versa."
   (interactive)
   (if (not (use-region-p))
       (user-error "No active region detected to toggle case")
@@ -37,12 +37,13 @@ If no region is active, raises a clean user-error without affecting text state."
       (delete-region beg end)
       (insert output))))
 
-;; =============================================================================
-;; 2. Meow Modal Editing Engine (Dvorak Optimization Layout)
-;; =============================================================================
+;;; Meow Modal Editing Engine (Dvorak Layout Profile)
+;; ---------------------------------------------------------------------
+;; Customizes the modal selection engine specifically to match a hardware Dvorak profile,
+;; maintaining muscle memory consistency and high-speed core command reachability.
 
 (defun meow-setup-dvorak ()
-  "Define navigation, selection, and structural execution layers for Dvorak layout."
+  "Define positional navigation, expansion bounds, and text manipulation keys for Dvorak."
   (meow-leader-define-key
    '("1" . meow-digit-argument)
    '("2" . meow-digit-argument)
@@ -71,7 +72,7 @@ If no region is active, raises a clean user-error without affecting text state."
    '("-" . negative-argument)
    '(";" . meow-reverse)
    '("'" . meow-beginning-of-thing)
-   '("," . meow-inner-of-thing)
+   '(", " . meow-inner-of-thing)
    '("." . meow-end-of-thing)
    '("<" . meow-bounds-of-thing)
    '(">" . meow-bounds-of-thing)
@@ -80,7 +81,7 @@ If no region is active, raises a clean user-error without affecting text state."
    '("b" . meow-back-word)
    '("B" . meow-back-symbol)
    '("c" . meow-change)
-   '("C" . san/toggle-case) ; Structural map to custom inversion engine
+   '("C" . san/toggle-case)
    '("d" . delete-char)
    '("e" . meow-line)
    '("f" . meow-find)
@@ -131,27 +132,27 @@ If no region is active, raises a clean user-error without affecting text state."
   (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
   (meow-global-mode 1))
 
-;; =============================================================================
-;; 3. Spatial Window Switching Layer (Ace-Window Routing)
-;; =============================================================================
+;;; Spatial Window Switching Layer (Ace-Window Routing)
+;; ---------------------------------------------------------------------
+;; Implements an accelerated contextual view window switcher. A single execution step 
+;; cycles focus back-and-forth across simple binary split panes. Repeated immediate 
+;; secondary execution events elevate the engine into a spatial letter-overlay grid layout.
 
 (use-package ace-window
   :ensure t
   :config
-  ;; Define tactile, high-comfort home row selection targeting keys on Dvorak
+  ;; Target specific accessible key parameters matching home-row focus points
   (setq aw-keys '(?h ?u ?a ?s ?e ?t ?o ?n))
   
   (defun san/other-window ()
     "Intelligent context window switcher.
-A single invocation smoothly shifts point to the immediate next adjacent window pane.
-Executing the shortcut consecutively (double-tapping) upgrades focus mechanisms 
-instantly to trigger spatial overlays across all active visual grid windows."
+Transitions linearly between frame partitions on single execution, elevating to
+spatial grid selection mode upon immediate consecutive inputs."
     (interactive)
     (if (eq last-command #'san/other-window) 
         (ace-window 1) 
       (other-window 1)))
   
-  ;; Bind the smart navigation hook globally to Alt-o
   (keymap-global-set "M-o" #'san/other-window))
 
 (provide 'san-keybindings)

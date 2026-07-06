@@ -1,20 +1,20 @@
 ;;; san-fonts.el --- Font & Typography Configuration Engine -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; This module manages graphical frame typography mappings across standard frames.
-;; It handles:
-;; 1. Global fixed-pitch font normalization.
-;; 2. Document layout scaling using mixed-pitch rules.
-;; 3. Non-blocking host-to-guest font syncing under WSL2.
-;; 4. International script isolation for Malayalam text rendering.
+;; This module governs graphical frame font mapping topologies. It manages:
+;; - Default monospace canvas parameters across all active display platforms.
+;; - Mixed-pitch prose rules for proportional reading fields.
+;; - An automated asset pipeline linking host Windows font registries straight into WSL.
+;; - High-legibility custom text spacing and scale balancing for Malayalam script layers.
 
 ;;; Code:
 
 (require 'subr-x)
 
-;; =============================================================================
-;; 1. Core Monospace Typography Definitions
-;; =============================================================================
+;;; Default Monospace Canvas Typography
+;; ---------------------------------------------------------------------
+;; Specifies the central terminal text face and point dimensions across both standard
+;; initialization routines and newly spawned client frames.
 
 (defvar san/default-font "Consolas-16"
   "The default structural font face and pixel size used across standard frames.")
@@ -25,25 +25,27 @@
 ;; Apply font attributes globally across all existing graphical buffers
 (set-face-attribute 'default nil :font san/default-font)
 
-;; =============================================================================
-;; 2. Proportional Pitch & Icon Fontsets Configuration
-;; =============================================================================
+;;; Proportional Pitch & Icon Fontsets Configuration
+;; ---------------------------------------------------------------------
+;; Activates localized structural proportional layout fonts inside prose-heavy environments
+;; while protecting code block alignment metrics and mapping UI font icon indices.
 
-;; Automatically toggle beautiful variable-pitch spacing inside prose documents
 (use-package mixed-pitch
   :ensure t
   :hook (text-mode . mixed-pitch-mode))
 
-;; Load icon mapping layers cleanly
 (use-package nerd-icons
   :ensure t)
 
-;; Isolate modern symbol ranges and map them explicitly to the Nerd Font layer
+;; Map standard Unicode symbol ranges directly to Symbols Nerd Font Mono
 (set-fontset-font t 'symbol (font-spec :family "Symbols Nerd Font Mono"))
 
-;; =============================================================================
-;; 3. WSL2 Automatic Font Aggregation Layer
-;; =============================================================================
+;;; WSL2 Automatic Font Aggregation Layer
+;; ---------------------------------------------------------------------
+;; If running inside a Linux guest virtualization instance, this utility scans the underlying 
+;; host operating system architecture. It builds a localized, relative XML font configuration block 
+;; linking the native Windows global font registries and local AppData user fonts directly into 
+;; the guest container, then regenerates the font cache to guarantee asset parity.
 
 (defun san/setup-wsl-fonts ()
   "Interrogate the host operating system and link Windows fonts directly into WSL.
@@ -73,9 +75,11 @@ and sweeps updates into fontconfig dynamically in a separate background thread."
 ;; Invoke the setup engine safely
 (san/setup-wsl-fonts)
 
-;; =============================================================================
-;; 4. Malayalam Script Font Engine
-;; =============================================================================
+;;; Malayalam Script Typography Engine
+;; ---------------------------------------------------------------------
+;; Intercepts standard buffer text generation streams. When Unicode vectors tracking 
+;; the Malayalam character block range are parsed, it overrides standard monospace constraints
+;; and renders them using the high-legibility Chilanka typography layout.
 
 (defun san/set-malayalam-font (frame)
   "Configure high-legibility font mappings for Malayalam script sequences inside FRAME.

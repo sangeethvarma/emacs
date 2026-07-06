@@ -1,66 +1,56 @@
 ;;; san-llm.el --- Local AI Engineering Buffer Context (gptel) -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; This module interfaces your Emacs editing framework with your local bare-metal
-;; Ollama AI server running on the Windows host (utilizing the native GPU).
-;;
-;; PERFORMANCE ARCHITECTURE:
-;; This package is completely deferred. Network routing calculations for WSL2-to-Host
-;; gateways are executed lazily upon initial invocation, protecting startup speed.
-;;
-;; Keybindings:
-;; M-x gptel          -> Open a dedicated interactive AI chat session.
-;; M-x gptel-send     -> Send active region or paragraph context to the local model.
+;; This module handles deferred interface pipelines linking active editor buffers to 
+;; a local, bare-metal Ollama AI server. It isolates system persona definitions 
+;; and optimizes network route evaluations to maintain cross-platform performance.
 
 ;;; Code:
 
 (require 'subr-x)
 
-;; =============================================================================
-;; 1. Gptel & Local Ollama Infrastructure Configuration
-;; =============================================================================
+;;; Gptel & Local Ollama Infrastructure Configuration
+;; ---------------------------------------------------------------------
+;; Provisions asynchronous local LLM interaction. Encapsulates host gateway path routing 
+;; calculations inside a lazy evaluation wrapper to prevent blocking early startup cycles.
 
 (use-package gptel
   :ensure t
-  :defer t  ; PERFORMANCE: Defer loading completely until an AI command is executed
-  :bind (("C-c g g" . gptel)
-         ("C-c g s" . gptel-send)
-         ("C-c g m" . gptel-menu))
+  :defer t
+  :bind (("C-c g g" . gptel)              ; Spawn an independent interactive chat buffer
+         ("C-c g s" . gptel-send)         ; Dispatch active region selection to the backend
+         ("C-c g m" . gptel-menu))        ; Launch the primary gptel option configuration interface
   :config
-  ;; Define a lazy backend initializer to resolve the cross-virtualization IP address
   (defun san/gptel-initialize-backend ()
     "Extract host network routing pathways lazily inside WSL environments.
-Prevents blocking synchronous shell calls from pausing the main Emacs startup thread."
-    (let ((host-ip "127.0.0.1")) ; Default fallback loopback matrix
-      
-      ;; If running inside WSL, query the Linux kernel network routing table for the Windows gateway
+Calculates the host-side virtual gateway ip route address on demand, bridging 
+guest buffers to the native, bare-metal GPU Ollama instance running on the host."
+    (let ((host-ip "127.0.0.1"))
       (when (and (eq system-type 'gnu/linux) (getenv "WSLENV"))
         (let ((route-ip (string-trim (shell-command-to-string 
                                       "ip route | grep default | awk '{print $3}'"))))
           (unless (string-empty-p route-ip)
             (setq host-ip route-ip))))
       
-      ;; Provision the official local backend framework instance
       (setq-default gptel-backend
                     (gptel-make-ollama "Ollama-Windows"
                       :host (concat host-ip ":11434")
                       :stream t
                       :models '(qwen2.5:1.5b llama3.2)))))
 
-  ;; Initialize the network endpoint routing map cleanly inside the configuration thread
+  ;; Evaluate host connections lazily on initial configuration setup block execution
   (san/gptel-initialize-backend)
-
-  ;; Configure your default high-speed syntax parsing model
   (setq-default gptel-model 'qwen2.5:1.5b)
 
-  ;; =============================================================================
-  ;; 2. Domain-Isolated Persona Directives Matrix
-  ;; =============================================================================
-  ;; Custom system prompts mapped explicitly to your PARA operational domains.
-
+  ;;; Domain-Isolated Persona Directives Matrix
+  ;; ---------------------------------------------------------------------
+  ;; Configures contextual engineering behaviors. Emojis are purposefully utilized 
+  ;; inside macro definitions to act as reliable visual layout keys.
+  
   (setq gptel-directives
-        '((academic-critic . "You are an elite peer-reviewer in Political Science and Development Studies. Deconstruct this draft. Identify unstated systemic assumptions, analytical leaps, or deficiencies in socio-economic structural logic. Be brutally rigorous and concise.")
-          (boilerplate-coder . "You are a pragmatic Python automation tool. Write clean, idiomatic Python code blocks using standard library calls wherever possible. Do not write conversational prose, introductions, or conceptual explanations. Provide ONLY code blocks and inline comments for edge cases.")
+        '((discourse-analyst . "You are an expert scholar in Science and Technology Studies (STS) and Political Ecology specializing in infrastructural politics, redistributive welfarism, and Critical Discourse Analysis (CDA). Deconstruct this technical report, policy text, or interview transcript fragment. Uncover embedded developmental narratives, implicit technocratic assumptions, structural power configurations, and contested visions of progress. Provide crisp, theoretically grounded analytical notes organized by core themes.")
+          (academic-critic . "You are an elite peer-reviewer in Political Science and Development Studies. Deconstruct this draft. Identify unstated systemic assumptions, analytical leaps, or deficiencies in socio-economic structural logic. Be brutally rigorous and concise.")
+          (boilerplate-coder . "You are a pragmatic Python automation tool. Write clean, idiomatic Python code blocks using standard library calls wherever possible. Provide ONLY code blocks and inline comments for edge cases.")
           (startup-validation . "You are an EdTech startup incubator coach specializing in business model validation. Triage this idea. Isolate the underlying assumption, evaluate it against low-cost user validation mechanics, and declare the single most critical risk threshold. Keep it under 4 bullet points.")
           (default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
           (programming . "You are a large language model and a careful programmer. Provide code and only code as output without any additional text, prompt or note.")
