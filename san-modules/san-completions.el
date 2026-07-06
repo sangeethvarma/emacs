@@ -115,5 +115,59 @@
   :ensure t
   :after (embark consult))
 
+;;; Meow-Minad Alignment Architecture
+
+(with-eval-after-load 'meow
+  ;; Enforce default state targeting for Minad ecosystem buffers
+  (setq meow-mode-state-list
+        (append '((vertico-buffer-mode . motion)
+                  (embark-collect-mode . motion)
+                  (embark-export-mode  . motion)
+                  (consult-preview-mode . motion))
+                meow-mode-state-list))
+
+  ;; Ensure the minibuffer completely bypasses normal/motion modal constraints
+  ;; to allow out-of-order component matching via Orderless without key collision
+  (add-hook 'minibuffer-setup-hook #'meow-insert-mode))
+
+(with-eval-after-load 'embark
+  ;; Smooth state transitions when executing Embark contextual actions
+  (add-hook 'embark-pre-action-hook #'meow-indicator-update)
+  
+  ;; Custom command wrapper to guarantee normal/motion state is restored
+  ;; if an action drops you into a target buffer unexpectedly
+  (advice-add 'embark-act :after (lambda (&rest _) (meow-indicator-update))))
+
+(with-eval-after-load 'corfu
+  ;; Ensure in-buffer completion dropdowns play nicely with insert-state
+  ;; by ensuring Corfu's pop-up keymap takes priority during active selection
+  (add-hook 'corfu-mode-hook
+            (lambda ()
+              (if corfu-mode
+                  (setq-local meow-insert-xdg-workaround nil)
+                (kill-local-variable 'meow-insert-xdg-workaround)))))
+
+;;; WSL2 Cross-FileSystem Ripgrep Optimization
+
+(with-eval-after-load 'consult
+  ;; Mitigate process-spawning cascades over sluggish drvfs mount layers
+  (setq consult-async-input-debounce 0.6
+        consult-async-input-throttle 0.9)
+
+  ;; Overhaul the underlying ripgrep flag architecture for cross-platform I/O
+  (setq consult-ripgrep-args
+        (concat "rg --null --line-buffered --color=never --max-columns=400 "
+                "--path-separator / --smart-case --no-heading --with-filename "
+                "--line-number --follow=no --max-filesize=1M --no-ignore-parent "
+                ;; System-wide PARA file taxonomy exclusions to skip binary assets
+                "--glob '!*/.git/*' "
+                "--glob '!*/Archive/*' "
+                "--glob '!*/Resources/*' "
+                "--glob '!*/clipboard-images/*' "
+                "--glob '!*.pdf' "
+                "--glob '!*.png' "
+                "--glob '!*.jpg' "
+                "--glob '!*.jpeg'")))
+
 (provide 'san-completions)
 ;;; san-completions.el ends here
