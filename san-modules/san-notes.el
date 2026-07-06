@@ -36,7 +36,7 @@
   (consult-denote-mode 1)
   :bind
   (("C-c n g" . consult-denote-grep)
-   ("C-c n f" . consult-denote-find))
+   ("C-c n f" . consult-denote-find)))
 
 (unless (get-process "grasp-server")
   (start-process "grasp-server" 
