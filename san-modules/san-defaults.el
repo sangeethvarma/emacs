@@ -85,7 +85,7 @@ core background process."
       (save-buffers-kill-emacs))))
 
 ;; Bind our streamlined termination logic to the default global exit sequence
-(keymap-global-set "C-x C-c" #'san-smart-quit)
+(keymap-global-set "C-x C-c" #'san/smart-quit)
 
 (provide 'san-defaults)
 ;;; san-defaults.el ends here
