@@ -1,63 +1,91 @@
-;;; -*- lexical-binding: t -*-
+;;; san-defaults.el --- Core Editor Behavior & Quality of Life Defaults -*- lexical-binding: t -*-
 
-;; don't display HELLO file - takes a lot of time, freezes up emacs
+;;; Commentary:
+;; This module defines global default options, file system preferences, and 
+;; environment overrides. It contains specific safeguards for mobile Syncthing 
+;; file changes, alongside explicit execution adjustments for Windows-native
+;; binaries loaded through the Scoop package manager.
+
+;;; Code:
+
+;; =============================================================================
+;; 1. Core Keybinding Adjustments & Cleanups
+;; =============================================================================
+
+;; Disable the default, easily mis-triggered introductory "hello" language screen
 (keymap-global-unset "C-h h")
 
-(delete-selection-mode t)
-(keymap-global-set "C-h C-h" 'delete-backward-char)
-(keymap-global-unset "M-d")
-(keymap-global-set "M-d" 'kill-word)
+;; Replace active text selections immediately when typing over them
+(delete-selection-mode 1)
 
-(put 'dired-find-alternate-file 'disabled nil) ;; a in dired kills the dired buffer, then visits the current line's file or directory.
+;; Standardize intuitive backspace and word removal behaviors
+(keymap-global-set "C-h C-h" #'delete-backward-char)
+(keymap-global-set "M-d" #'kill-word)
 
-(setq help-window-select t)
+;; Enable alternate-file opening in Dired (reusing the same buffer) without warning prompts
+(put 'dired-find-alternate-file 'disabled nil)
 
-(setq kill-do-not-save-duplicates t)
+;; =============================================================================
+;; 2. Window Management & Trash Preferences
+;; =============================================================================
 
-(setq delete-by-moving-to-trash t)
+(setq help-window-select t              ; Auto-focus help windows when they pop up
+      kill-do-not-save-duplicates t     ; Prevent identical text clips from polluting the kill-ring
+      delete-by-moving-to-trash t       ; Send deleted items to system trash instead of hard unlinking
+      dired-listing-switches "-alh --group-directories-first") ; Clean, categorized Dired files view
 
-;; Keep your preferred dired sorting active globally
-(setq dired-listing-switches "-alh --group-directories-first")
+;; =============================================================================
+;; 3. Windows Native & Scoop Package Manager Optimization Layer
+;; =============================================================================
+;; Corrects execution pathways when Emacs is running natively on the Windows Host.
+;; Ensures tools installed via Scoop (e.g., PowerShell, GNU Coreutils, Ripgrep) map
+;; and encode text output perfectly without interface locking.
 
-
-;;; WINDOWS & SCOOP OPTIMIZATIONS
 (when (eq system-type 'windows-nt)
-  ;; Use powershell as the shell on windows
+  ;; Route shell subprocess execution to PowerShell Core (pwsh) natively
   (setq shell-file-name "~/scoop/apps/pwsh/current/pwsh.exe" 
         comint-process-echoes 0)
-  ;; Optimize Dired with native GNU ls (bypassing the shim)
+  
+  ;; Map Dired directory listings to GNU 'ls' instead of using the fragile native fallback
   (setq insert-directory-program (expand-file-name "~/scoop/apps/coreutils/current/bin/ls.exe"))
   (setq dired-use-ls-dired t)
-  ;; Optimize Ripgrep (bypassing the shim to prevent UI freezes)
+  
+  ;; Configure native Ripgrep paths and optimize standard stream line-endings
   (setq rg-executable (expand-file-name "~/scoop/apps/ripgrep/current/rg.exe"))
-  ;; Force UTF-8 for Ripgrep so characters don't break searches
   (add-to-list 'process-coding-system-alist '("rg\\.exe" . (utf-8-unix . utf-8-unix))))
 
-;;; SYNCTHING MOBILE SAFEGUARDS
-;; 1. Disable lockfiles so Android Syncthing doesn't crash on symlinks
+;; =============================================================================
+;; 4. Syncthing Mobile Safeguards & Integrity Anchors
+;; =============================================================================
+;; Prevents cross-platform file conflicts caused by mobile background syncing applications.
+
+;; Turn off temporary `. #file#` lockfiles which can trigger race conditions and 
+;; replication loops across background file-syncing agents (like Syncthing or Logan).
 (setq create-lockfiles nil)
 
-;; 2. Automatically refresh buffers if the file changes on disk (via mobile sync)
+;; Instantly refresh Emacs file buffers when they are modified on disk externally
 (global-auto-revert-mode 1)
 
-(defun san-smart-quit (&optional arg)
-  "Quit Emacs or close the current frame depending on the context.
-If running as a daemon, close the current client frame.
-If given a prefix argument (C-u), prompt to kill the entire Emacs server."
+;; =============================================================================
+;; 5. Intelligent Instance Termination Engine (Daemon Aware)
+;; =============================================================================
+
+(defun san/smart-quit (&optional arg)
+  "Intelligently handle application termination sequences.
+If running inside an active Emacs server session (Daemon client frame), closes 
+the visual client window while keeping the underlying process server alive.
+If a hard modifier ARG is supplied (via C-u prefix), asks to kill the entire 
+core background process."
   (interactive "P")
   (if arg
-      ;; If C-u is pressed, ask for strict confirmation before killing the daemon
       (when (yes-or-no-p "Warning: You are about to kill the entire Emacs daemon. Proceed? ")
         (save-buffers-kill-emacs))
-    
-    ;; If no prefix argument is given
     (if (daemonp)
-        ;; We are in a daemon: gracefully close the client frame
         (save-buffers-kill-terminal)
-      ;; We are in a standalone instance: just kill Emacs normally
       (save-buffers-kill-emacs))))
 
-;; Remap the default quit keybinding to new smart function
-(global-set-key (kbd "C-x C-c") #'san-smart-quit)
+;; Bind our streamlined termination logic to the default global exit sequence
+(keymap-global-set "C-x C-c" #'san-smart-quit)
 
 (provide 'san-defaults)
+;;; san-defaults.el ends here
