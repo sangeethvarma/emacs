@@ -23,13 +23,13 @@
          "* IDEA %^{Idea Title}\n%U\n%?\n" :empty-lines 1)
 
         ;; Integrated Personal Area templates pointing to the same file with separate tags
-        ("h" "Health & Fitness Target" entry
+        ("h" "Health & Fitness tasks" entry
          (file ,(expand-file-name "personal-todo.org" san-personal-dir))
-         "* TODO %^{Fitness Metric/Routine} :health:\n%U\n%?" :empty-lines 1)
+         "* TODO %^{Fitness/Health Task/Metric/Routine} :health:\n%U\n%?" :empty-lines 1)
 
         ("l" "Life Maintenance Item" entry
          (file ,(expand-file-name "personal-todo.org" san-personal-dir))
-         "* TODO %^{Logistical/Finance Task} :life:\n%U\n%?" :empty-lines 1)
+         "* TODO %^{Logistical/Finance Task/Chore} :life:\n%U\n%?" :empty-lines 1)
 
         ("j" "Sandbox / Hobby Script" entry
          (file ,(expand-file-name "sandbox-todo.org" san-sandbox-dir))
