@@ -35,8 +35,13 @@
 ;; It also updates the directory parsing engine to use GNU coreutils binaries.
 
 (when (eq system-type 'windows-nt)
-  (setq shell-file-name "~/scoop/apps/pwsh/current/pwsh.exe" 
-        comint-process-echoes 0)
+  (let ((pwsh-path (expand-file-name "~/scoop/apps/pwsh/current/pwsh.exe")))
+    (if (file-exists-p pwsh-path)
+        (setq shell-file-name pwsh-path
+              comint-process-echoes 0)
+      (display-warning 'san-defaults 
+                       "PowerShell Core not found. Falling back to default shell."
+                       :warning))))
   
   ;; Bind insertion tracking to native GNU Coreutils binary paths
   (setq insert-directory-program (expand-file-name "apps/coreutils/current/bin/ls.exe" (getenv "USERPROFILE")))
