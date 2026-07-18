@@ -1,6 +1,4 @@
 ;;; early-init.el --- Early Boot Optimizations & UI Neutralization -*- lexical-binding: t -*-
-;; Temporary diagnostic guard to trace lexical-binding warnings
-(setq debug-on-message "Making lexical-binding buffer-local")
 
 ;;; Commentary:
 ;; This module executes ahead of the main configuration routing deck. It maximizes 
