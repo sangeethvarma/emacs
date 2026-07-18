@@ -21,6 +21,15 @@
     "/mnt/l/")
   "The platform-agnostic root mount point for the shared master storage vault.")
 
+(defun san/validate-vault-root ()
+  "Verify that the vault root directory is accessible."
+  (unless (file-directory-p san-vault-root)
+    (display-warning 'san-paths 
+                     (format "Vault root not found: %s. Please check drive mounting." san-vault-root)
+                     :warning)))
+
+(add-hook 'emacs-startup-hook #'san/validate-vault-root)
+
 ;;; Structured PARA Area Directory Registry
 ;; ---------------------------------------------------------------------
 ;; Absolute paths to the isolated operational domains within the vault.
