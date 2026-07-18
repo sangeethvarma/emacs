@@ -13,7 +13,8 @@
 
 (require 'org)
 (require 'org-agenda)
-(require 'san-paths)
+(unless (require 'san-paths nil t)
+  (error "san-paths module not found"))
 
 ;;; Unified Domain Target Registries
 ;; ---------------------------------------------------------------------
@@ -127,8 +128,9 @@
              (target-dir (cdr (assoc chosen-key san-resource-folder-alist))))
         
         ;; Defensive verification step: Safely generate the destination directory if missing
-        (unless (file-directory-p target-dir)
-          (make-directory target-dir t))
+	(unless (file-directory-p target-dir)
+	  (message "Creating missing PARA resource directory: %s" target-dir)
+	  (make-directory target-dir t))
         
         ;; Relocate files sequentially
         (dolist (file files)
