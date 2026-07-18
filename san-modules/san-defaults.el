@@ -54,7 +54,7 @@
     (display-warning 'san-defaults 
                      (format "Ripgrep not found at %s. Consult search will be slow." rg-path)
                      :warning)))
-(add-to-list 'process-coding-system-alist '("rg\\.exe" . (utf-8-unix . utf-8-unix))))
+(add-to-list 'process-coding-system-alist '("rg\\.exe" . (utf-8-unix . utf-8-unix)))
 
 ;;; Automated File Sync Integrity Guarding
 ;; ---------------------------------------------------------------------
