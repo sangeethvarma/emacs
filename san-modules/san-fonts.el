@@ -56,10 +56,14 @@ and sweeps updates into fontconfig dynamically in a separate background thread."
            (config-file (expand-file-name "fonts.conf" config-dir)))
       (unless (file-exists-p config-file)
 	(let* ((win-user (condition-case err
-                   (string-trim (shell-command-to-string "cmd.exe /c echo %USERNAME%"))
-                   (error (progn (display-warning 'san-fonts 
-                                                  "Failed to retrieve Windows username for font setup"
-                                                  :warning)
+			     (let ((win-user (or (ignore-errors 
+						   (string-trim (shell-command-to-string "cmd.exe /c echo %USERNAME%")))
+						 "")))
+			       (when (string-empty-p win-user)
+				 (display-warning 'san-fonts "Could not detect Windows user" :warning)))
+			   (error (progn (display-warning 'san-fonts 
+							  "Failed to retrieve Windows username for font setup"
+							  :warning)
                                 nil))))
                (sys-fonts "/mnt/c/Windows/Fonts")
                (user-fonts (format "/mnt/c/Users/%s/AppData/Local/Microsoft/Windows/Fonts" win-user)))
@@ -75,7 +79,9 @@ and sweeps updates into fontconfig dynamically in a separate background thread."
             (insert "</fontconfig>\n"))
           (message "WSL Fontconfig configuration missing: Host mappings generated.")
           ;; Fire cache processing asynchronously to prevent UI blocking loops
-          (start-process "fc-cache-wsl" nil "fc-cache" "-f"))))))
+	  (condition-case err
+	      (start-process "fc-cache-wsl" nil "fc-cache" "-f")
+	    (file-not-found (display-warning 'san-fonts "fc-cache not found" :warning))))))))
 
 ;; Invoke the setup engine safely
 (san/setup-wsl-fonts)
