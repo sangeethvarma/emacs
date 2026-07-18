@@ -18,7 +18,7 @@
 ;; Specifies the target flat BibTeX reference database and establishes default 
 ;; export parsing rules for compiling academic manuscripts.
 
-(setq org-cite-global-bibliography (list (expand-file-name "references.bib" san-phd-dir)))
+(setq org-cite-global-bibliography (list (expand-file-name "Resources/references.bib" san-phd-dir)))
 (setq org-cite-export-processors '((latex biblatex) (t basic)))
 
 ;;; BibTeX Editor Preferences
