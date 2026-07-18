@@ -12,7 +12,7 @@
 ;; Establishes connection pathways to third-party ELPA/MELPA archives and 
 ;; optimizes bytecode compilation flags during execution setup steps.
 
-(setq package-check-signature nil)
+(setq package-check-signature 'allow-unsigned)
 (require 'package)
 (require 'use-package)
 
