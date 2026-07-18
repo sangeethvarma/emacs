@@ -42,14 +42,19 @@
       (display-warning 'san-defaults 
                        "PowerShell Core not found. Falling back to default shell."
                        :warning))))
-  
-  ;; Bind insertion tracking to native GNU Coreutils binary paths
-  (setq insert-directory-program (expand-file-name "apps/coreutils/current/bin/ls.exe" (getenv "USERPROFILE")))
-  (setq dired-use-ls-dired t)
-  
-  ;; Force UTF-8 byte serialization patterns across background Ripgrep processes
-  (setq rg-executable (expand-file-name "apps/ripgrep/current/rg.exe" (getenv "USERPROFILE")))
-  (add-to-list 'process-coding-system-alist '("rg\\.exe" . (utf-8-unix . utf-8-unix))))
+
+;; Bind insertion tracking to native GNU Coreutils binary paths
+(setq insert-directory-program (expand-file-name "apps/coreutils/current/bin/ls.exe" (getenv "USERPROFILE")))
+(setq dired-use-ls-dired t)
+
+;; Force UTF-8 byte serialization patterns across background Ripgrep processes
+(let ((rg-path (expand-file-name "apps/ripgrep/current/rg.exe" (getenv "USERPROFILE"))))
+  (if (file-exists-p rg-path)
+      (setq rg-executable rg-path)
+    (display-warning 'san-defaults 
+                     (format "Ripgrep not found at %s. Consult search will be slow." rg-path)
+                     :warning)))
+(add-to-list 'process-coding-system-alist '("rg\\.exe" . (utf-8-unix . utf-8-unix))))
 
 ;;; Automated File Sync Integrity Guarding
 ;; ---------------------------------------------------------------------
