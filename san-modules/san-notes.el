@@ -45,7 +45,9 @@ physically exists to ensure error-free file creation."
          (chosen-path (cdr (assoc chosen-name san-denote-silo-alist))))
     ;; Defensive Verification: Build the note path directory if missing
     (unless (file-directory-p chosen-path)
-      (make-directory chosen-path t))
+      (condition-case err
+	  (make-directory chosen-path t)
+	(file-error (user-error "Failed to create note directory: %s" chosen-path))))
     (setq denote-directory chosen-path)
     (message "Denote context shifted to: %s" chosen-name)))
 
