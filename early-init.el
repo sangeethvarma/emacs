@@ -38,7 +38,7 @@
 (setq inhibit-startup-screen t)
 (setq inhibit-x-resources t)
 (setq inhibit-startup-buffer-menu t)
-(setq inhibit-startup-echo-area-message "sangeeth")
+(setq inhibit-startup-echo-area-message (user-login-name))
 
 (setq initial-scratch-message ";;; scratch buffer\n\n")
 
