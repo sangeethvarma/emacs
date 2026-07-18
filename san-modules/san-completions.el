@@ -144,7 +144,8 @@
   (add-hook 'corfu-mode-hook
             (lambda ()
               (if corfu-mode
-                  (setq-local meow-insert-xdg-workaround nil)
+		  (when (boundp 'meow-insert-xdg-workaround)
+		    (setq-local meow-insert-xdg-workaround nil))
                 (kill-local-variable 'meow-insert-xdg-workaround)))))
 
 ;;; WSL2 Cross-FileSystem Ripgrep Optimization
