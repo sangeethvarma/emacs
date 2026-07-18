@@ -55,7 +55,12 @@ and sweeps updates into fontconfig dynamically in a separate background thread."
     (let* ((config-dir (expand-file-name "~/.config/fontconfig"))
            (config-file (expand-file-name "fonts.conf" config-dir)))
       (unless (file-exists-p config-file)
-        (let* ((win-user (string-trim (shell-command-to-string "cmd.exe /c echo %USERNAME%")))
+	(let* ((win-user (condition-case err
+                   (string-trim (shell-command-to-string "cmd.exe /c echo %USERNAME%"))
+                   (error (progn (display-warning 'san-fonts 
+                                                  "Failed to retrieve Windows username for font setup"
+                                                  :warning)
+                                nil))))
                (sys-fonts "/mnt/c/Windows/Fonts")
                (user-fonts (format "/mnt/c/Users/%s/AppData/Local/Microsoft/Windows/Fonts" win-user)))
           (unless (file-directory-p config-dir)
