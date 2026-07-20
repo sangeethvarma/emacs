@@ -17,7 +17,6 @@
          ("C-c g s" . gptel-send)         ; Dispatch active region selection to the backend
          ("C-c g m" . gptel-menu))        ; Launch the primary gptel option configuration interface
   :config
-
   ;; --- 1. LOCAL OLLAMA BACKEND CONFIGURATION ---
   (defun san/gptel-initialize-ollama ()
     "Extract host network routing pathways lazily inside WSL environments.
@@ -33,7 +32,7 @@ guest buffers to the native, bare-metal GPU Ollama instance running on the host.
       (gptel-make-ollama "Ollama-Windows"
         :host (concat host-ip ":11434")
         :stream t
-        :models '(qwen2.5:1.5b llama3.2))))
+        :models '(qwen2.5-coder:3b qwen2.5:1.5b llama3.2))))
 
   ;; --- 2. OPENROUTER CLOUD BACKEND CONFIGURATION ---
 (defun san/gptel-initialize-openrouter ()
@@ -52,7 +51,9 @@ guest buffers to the native, bare-metal GPU Ollama instance running on the host.
             :key token
             :models '(meta-llama/llama-3.3-70b-instruct
                       qwen/qwen3-coder
-                      perplexity/sonar-reasoning)))
+                      perplexity/sonar-reasoning
+		      deepseek/deepseek-r1
+                      google/gemini-2.5-pro)))
       (message "Warning: OpenRouter key file missing at %s" key-file))))
 
   ;; Initialize both backends on load
