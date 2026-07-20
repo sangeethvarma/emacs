@@ -10,7 +10,6 @@
 ;;; Code:
 
 ;;; Global Vault Root Definition
-;; ---------------------------------------------------------------------
 ;; The central storage partition (L drive) is mounted across both operating system
 ;; landscapes. Windows addresses it natively as a block drive, whereas WSL2
 ;; mounts it via the 9p/drvfs filesystem layer under the linux guest mount directory.
@@ -31,7 +30,6 @@
 (add-hook 'emacs-startup-hook #'san/validate-vault-root)
 
 ;;; Structured PARA Area Directory Registry
-;; ---------------------------------------------------------------------
 ;; Absolute paths to the isolated operational domains within the vault.
 ;; Workspace hooks, file generation functions, and asset managers must evaluate
 ;; directly against these variables to maintain cross-platform runtime mobility.
@@ -55,37 +53,32 @@
   "Path to cold historical records, entirely filtered from active search indexes.")
 
 ;;; Interactive Directory Accessors (Dired Integration)
-;; ---------------------------------------------------------------------
 ;; Quick navigation entry-points that wrap directory paths into localized Dired buffers.
 ;; Bypasses standard file-finding prompts for core active domains.
 
-(defun san/open-personal-dir ()
-  "Instantly open the Personal Area folder inside a Dired buffer."
-  (interactive)
-  (find-file san-personal-dir))
+(defmacro san/define-dir-opener (name dir-var &optional docstring)
+  "Create an interactive function to open a PARA directory in Dired.
+NAME is the function name suffix (e.g., 'personal' -> san/open-personal-dir).
+DIR-VAR is the directory variable to use.
+DOCSTRING is optional documentation."
+  (let ((func-name (intern (format "san/open-%s-dir" name))))
+    `(defun ,func-name ()
+       ,(or docstring (format "Open the %s directory in Dired." name))
+       (interactive)
+       (find-file ,dir-var))))
 
-(defun san/open-phd-dir ()
-  "Instantly open the PhD Academic Area folder inside a Dired buffer."
-  (interactive)
-  (find-file san-phd-dir))
-
-(defun san/open-startup-dir ()
-  "Instantly open the Iterrate Startup Area folder inside a Dired buffer."
-  (interactive)
-  (find-file san-startup-dir))
-
-(defun san/open-inbox-dir ()
-  "Instantly open the Universal Inbox folder inside a Dired buffer."
-  (interactive)
-  (find-file san-inbox-dir))
-
-(defun san/open-sandbox-dir ()
-  "Instantly open the Sandbox scripting folder inside a Dired buffer."
-  (interactive)
-  (find-file san-sandbox-dir))
+(san/define-dir-opener personal san-personal-dir
+  "Instantly open the Personal Area folder inside a Dired buffer.")
+(san/define-dir-opener phd san-phd-dir
+  "Instantly open the PhD Academic Area folder inside a Dired buffer.")
+(san/define-dir-opener startup san-startup-dir
+  "Instantly open the Iterrate Startup Area folder inside a Dired buffer.")
+(san/define-dir-opener inbox san-inbox-dir
+  "Instantly open the Universal Inbox folder inside a Dired buffer.")
+(san/define-dir-opener sandbox san-sandbox-dir
+  "Instantly open the Sandbox scripting folder inside a Dired buffer.")
 
 ;;; Global Navigation Mnemonic Keybindings
-;; ---------------------------------------------------------------------
 ;; Evaluated using modern Emacs 29+ primitives. Placed under the personal 
 ;; 'C-c d' (directory) prefix map for high-speed touch-typing execution.
 
