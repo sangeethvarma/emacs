@@ -18,18 +18,18 @@
   :config
   (load-theme 'ef-bio t))
 
-;;; Visual Cursor Beacon
-;; Highlights cursor position when scrolling or switching windows
-(use-package beacon
-  :ensure t
-  :defer t
-  :init
-  (beacon-mode 1)
-  :config
-  (setq beacon-color "#56A5A8"
-        beacon-blink-when-focused t
-        beacon-blink-delay 0.1
-        beacon-blink-duration 0.3))
+;; ;;; Visual Cursor Beacon
+;; ;; Highlights cursor position when scrolling or switching windows
+;; (use-package beacon
+;;   :ensure t
+;;   :defer t
+;;   :init
+;;   (beacon-mode 1)
+;;   :config
+;;   (setq beacon-color "#56A5A8"
+;;         beacon-blink-when-focused t
+;;         beacon-blink-delay 0.1
+;;         beacon-blink-duration 0.3))
 
 ;;; Status Modeline & Time Telemetry
 (use-package doom-modeline
