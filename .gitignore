@@ -11,3 +11,4 @@ server/
 *~
 *.elc
 eln-cache/
+.openrouter-key
