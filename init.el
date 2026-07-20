@@ -54,7 +54,7 @@
     (error (message "Warning: Failed to load custom.el: %s" (error-message-string err)))))
 
 ;;; Core Emacs Server Lifecycle Management
-;; Provisions an automated socket listening connection layer, enabling high-speed 
+;; Provisions an automated listening connection layer, enabling high-speed 
 ;; external script interaction and web protocols without launching duplicate instances.
 
 (require 'server)
@@ -98,7 +98,7 @@
 (require 'san-org-images)
 
 ;;; Experimental/Disabled Modules
-;; (require 'san-llm)      ; Language model integration (disabled)
-;; (require 'san-elfeed)   ; RSS feed reader (disabled)
+(require 'san-llm)      ; Language model integration
+;; (require 'san-elfeed)   ; RSS feed reader
 
 ;;; init.el ends here
