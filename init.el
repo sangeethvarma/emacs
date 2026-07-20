@@ -19,7 +19,9 @@
         ("melpa" . 2)
         ("nongnu" . 1)))
 
+(add-to-list 'package-archives '("gnu-elpa" . "https://elpa.gnu.org/packages/") t)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/") t)
 
 (setq package-install-upgrade-built-in t
       use-package-always-ensure t
@@ -73,10 +75,14 @@
 (require 'san-paths)
 (require 'san-defaults)
 
-;; Interface, completions, and layout engines
-(require 'san-keybindings)
+;; Interface, fonts, and visual appearance
 (require 'san-fonts)
 (require 'san-appearance)
+
+;; Input handling and keybindings
+(require 'san-keybindings)
+
+;; Completions and minibuffer enhancements
 (require 'san-completions)
 (require 'san-minibuffer)
 
@@ -90,7 +96,9 @@
 (require 'san-scratch)
 (require 'san-view-files)
 (require 'san-org-images)
-;; (require 'san-llm)
-;; (require 'san-elfeed)
+
+;;; Experimental/Disabled Modules
+;; (require 'san-llm)      ; Language model integration (disabled)
+;; (require 'san-elfeed)   ; RSS feed reader (disabled)
 
 ;;; init.el ends here
