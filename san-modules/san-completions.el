@@ -38,7 +38,7 @@
   :ensure t
   :custom
   (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion))))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
 
 ;;; Marginalia Minibuffer Rich Annotations
 (use-package marginalia
