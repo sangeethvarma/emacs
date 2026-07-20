@@ -2,36 +2,22 @@
 
 ;;; Commentary:
 ;; This module orchestrates a minimalist, keyboard-driven completion stack.
-;; It coordinates modern modular engines built strictly on top of standard 
-;; Emacs completion primitives to handle:
-;; - Vertico (vertical minibuffer selection UI).
-;; - Corfu (high-speed, in-buffer popup autocompletion).
-;; - Orderless (out-of-order regular expression pattern matching).
-;; - Marginalia (metadata-rich minibuffer annotations).
-;; - Consult (context-rich advanced search and navigation utilities).
-;; - Embark (contextual action menus and export pipelines).
 
 ;;; Code:
 
 ;;; Vertico Vertical Minibuffer UI
-;; ---------------------------------------------------------------------
-;; Replaces the default horizontal or grid-based completion display with an efficient, 
-;; vertical selection matrix that scales dynamically to fit available candidate outputs.
-
 (use-package vertico
   :ensure t
   :custom
-  (vertico-cycle t)                       ; Cycle back to top when reaching end of list
-  (vertico-resize t)                      ; Adjust minibuffer size dynamically to match list
-  (vertico-sort-function #'vertico-sort-history-alpha) ; Sort via historical lookup and alphabet
+  (vertico-cycle t)
+  (vertico-resize t)
+  (vertico-sort-function #'vertico-sort-history-alpha)
   :init
   (vertico-mode 1))
 
 ;; Path Traversal Cleansing Extension
-;; Refines directory navigation inside the minibuffer. Pressing Backspace over a directory
-;; delimiter drops back an entire directory tier cleanly rather than deleting individual bytes.
 (use-package vertico-directory
-  :ensure nil                             ; Built-in part of the vertico package bundle
+  :ensure nil
   :after vertico
   :bind (:map vertico-map
               ("DEL" . vertico-directory-up)
@@ -39,44 +25,30 @@
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
 ;;; Corfu In-Buffer Autocompletion Engine
-;; ---------------------------------------------------------------------
-;; Renders inline dropdown candidate popups directly at point while typing in standard buffers, 
-;; providing non-intrusive completion overlays that drop out instantly upon word breaks.
-
 (use-package corfu
   :ensure t
   :custom
-  (corfu-auto t)                          ; Automatically trigger popups without keystroke delays
-  (corfu-quit-no-match t)                 ; Drop the popup overlay instantly if no metrics align
+  (corfu-auto t)
+  (corfu-quit-no-match t)
   :init
   (global-corfu-mode 1))
 
 ;;; Orderless Pattern Matching Engine
-;; ---------------------------------------------------------------------
-;; Overhauls string filtering behavior by treating user input terms as isolated, space-separated
-;; regex fragments. Allows out-of-order matching across minibuffer items for rapid lookups.
-
 (use-package orderless
   :ensure t
   :custom
   (completion-styles '(orderless basic))
-  ;; Force standard file-finding lookups to respect partial completion boundaries
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  (completion-category-overrides '((file (styles basic partial-completion))))
 
 ;;; Marginalia Minibuffer Rich Annotations
-;; ---------------------------------------------------------------------
-;; Appends descriptive metadata columns to the right margin of minibuffer items (e.g., file sizes,
-;; permissions, command keybindings, or documentation strings).
-
 (use-package marginalia
   :ensure t
   :custom
-  (marginalia-align 'center)              ; Keep columns systematically balanced
+  (marginalia-align 'center)
   :init
   (marginalia-mode 1))
 
 ;; Monochrome UI Icons for Completions
-;; Embeds visually balanced file and folder icons next to candidates inside the minibuffer vector.
 (use-package nerd-icons-completion
   :ensure t
   :after marginalia
@@ -85,82 +57,57 @@
   :hook (marginalia-mode-hook . nerd-icons-completion-marginalia-setup))
 
 ;;; Consult Search & Navigation Utilities
-;; ---------------------------------------------------------------------
-;; Provisions an array of asynchronous text search lookups, line jumpers, and project-wide
-;; line grepping tools that pass results to the vertical minibuffer.
-
 (use-package consult
   :ensure t
-  :bind (("M-s M-g" . consult-ripgrep)    ; Asynchronous, project-wide text grepping
-         ("M-s M-f" . consult-find)       ; High-speed indexed file location lookups
-         ("M-s M-o" . consult-outline)    ; Structural heading jump matrix
-         ("M-s M-l" . consult-line)       ; Interactive line filter inside current buffer
-         ("M-s M-b" . consult-buffer)     ; Integrated buffer, recent-file, and bookmark list
+  :bind (("M-s M-g" . consult-ripgrep)
+         ("M-s M-f" . consult-find)
+         ("M-s M-o" . consult-outline)
+         ("M-s M-l" . consult-line)
+         ("M-s M-b" . consult-buffer)
          ("C-x M-b" . consult-buffer)))
 
 ;;; Embark Context Actions Menu & Pipelines
-;; ---------------------------------------------------------------------
-;; Acts as a keyboard-driven right-click menu. Interrogates whatever object exists at point 
-;; (file, buffer, URL, function symbol) and spawns an action matrix, or exports minibuffer 
-;; lists directly into editable project snapshots.
-
 (use-package embark
   :ensure t
-  :bind (("C-." . embark-act)             ; Execute contextual action grid over item at point
+  :bind (("C-." . embark-act)
          :map minibuffer-local-map
-         ("C-c C-c" . embark-collect)     ; Snatch current live candidates into a static buffer
-         ("C-c C-e" . embark-export)))    ; Turn active file search lists directly into a Dired buffer
+         ("C-c C-c" . embark-collect)
+         ("C-c C-e" . embark-export)))
 
 (use-package embark-consult
   :ensure t
   :after (embark consult))
 
-;;; Meow-Minad Alignment Architecture
-
+;;; Meow Integration
 (with-eval-after-load 'meow
-  ;; Enforce default state targeting for Minad ecosystem buffers
   (setq meow-mode-state-list
         (append '((vertico-buffer-mode . motion)
                   (embark-collect-mode . motion)
                   (embark-export-mode  . motion)
                   (consult-preview-mode . motion))
                 meow-mode-state-list))
-
-  ;; Ensure the minibuffer completely bypasses normal/motion modal constraints
-  ;; to allow out-of-order component matching via Orderless without key collision
   (add-hook 'minibuffer-setup-hook #'meow-insert-mode))
 
 (with-eval-after-load 'embark
-  ;; Smooth state transitions when executing Embark contextual actions
   (add-hook 'embark-pre-action-hook #'meow-indicator-update)
-  
-  ;; Custom command wrapper to guarantee normal/motion state is restored
-  ;; if an action drops you into a target buffer unexpectedly
   (advice-add 'embark-act :after (lambda (&rest _) (meow-indicator-update))))
 
 (with-eval-after-load 'corfu
-  ;; Ensure in-buffer completion dropdowns play nicely with insert-state
-  ;; by ensuring Corfu's pop-up keymap takes priority during active selection
   (add-hook 'corfu-mode-hook
             (lambda ()
               (if corfu-mode
-		  (when (boundp 'meow-insert-xdg-workaround)
-		    (setq-local meow-insert-xdg-workaround nil))
+                  (when (boundp 'meow-insert-xdg-workaround)
+                    (setq-local meow-insert-xdg-workaround nil))
                 (kill-local-variable 'meow-insert-xdg-workaround)))))
 
-;;; WSL2 Cross-FileSystem Ripgrep Optimization
-
+;;; WSL2 Ripgrep Optimization
 (with-eval-after-load 'consult
-  ;; Mitigate process-spawning cascades over sluggish drvfs mount layers
   (setq consult-async-input-debounce 0.6
         consult-async-input-throttle 0.9)
-
-  ;; Overhaul the underlying ripgrep flag architecture for cross-platform I/O
   (setq consult-ripgrep-args
         (concat "rg --null --line-buffered --color=never --max-columns=400 "
                 "--path-separator / --smart-case --no-heading --with-filename "
                 "--line-number --follow=no --max-filesize=1M --no-ignore-parent "
-                ;; System-wide PARA file taxonomy exclusions to skip binary assets
                 "--glob '!*/.git/*' "
                 "--glob '!*/Archive/*' "
                 "--glob '!*/Resources/*' "

@@ -2,24 +2,15 @@
 
 ;;; Commentary:
 ;; This module establishes the core input mechanics and modal workspace layout.
-;; It utilizes modern Emacs 29+ key configuration primitives to set up:
-;; - Native case-transformation functions and string region counters.
-;; - The Meow modal editing framework, customized specifically for a Dvorak keyboard layout.
-;; - Spatial window routing and directional frame-jumping via Ace-Window.
 
 ;;; Code:
 
 ;;; Native Case Transformations & String Inversion
-;; Binds built-in C-optimized primitives to standard shortcuts, and provides a custom
-;; utility to selectively toggle case characters across active visual regions.
-
-(keymap-global-set "M-u" #'upcase-dwim)   ; Intelligently capitalize word or active selection
-(keymap-global-set "M-l" #'downcase-dwim) ; Intelligently lowercase word or active selection
+(keymap-global-set "M-u" #'upcase-dwim)
+(keymap-global-set "M-l" #'downcase-dwim)
 
 (defun san/toggle-case ()
-  "Invert the casing of all characters within the currently active region.
-Iterates through each individual byte position inside the active selection boundary,
-transforming uppercase letters to lowercase and vice-versa."
+  "Invert the casing of all characters within the currently active region."
   (interactive)
   (if (not (use-region-p))
       (user-error "No active region detected to toggle case")
@@ -37,9 +28,6 @@ transforming uppercase letters to lowercase and vice-versa."
       (insert output))))
 
 ;;; Meow Modal Editing Engine (Dvorak Layout Profile)
-;; Customizes the modal selection engine specifically to match a hardware Dvorak profile,
-;; maintaining muscle memory consistency and high-speed core command reachability.
-
 (defun meow-setup-dvorak ()
   "Define positional navigation, expansion bounds, and text manipulation keys for Dvorak."
   (meow-leader-define-key
@@ -132,10 +120,6 @@ transforming uppercase letters to lowercase and vice-versa."
   (meow-global-mode 1))
 
 ;;; Spatial Window Switching Layer (Ace-Window Routing)
-;; Implements an accelerated contextual view window switcher. A single execution step 
-;; cycles focus back-and-forth across simple binary split panes. Repeated immediate 
-;; secondary execution events elevate the engine into a spatial letter-overlay grid layout.
-
 (use-package ace-window
   :ensure t
   :config
@@ -143,15 +127,13 @@ transforming uppercase letters to lowercase and vice-versa."
   (setq aw-keys '(?h ?u ?a ?s ?e ?t ?o ?n))
   
   (defun san/other-window ()
-    "Intelligent context window switcher.
-Transitions linearly between frame partitions on single execution, elevating to
-spatial grid selection mode upon immediate consecutive inputs."
+    "Intelligent context window switcher."
     (interactive)
     (if (eq last-command #'san/other-window) 
         (ace-window 1) 
       (other-window 1)))
   
-  (keymap-global-set "M-o" #'san/other-window))
+  :bind (("M-o" . san/other-window)))
 
 (provide 'san-keybindings)
 ;;; san-keybindings.el ends here

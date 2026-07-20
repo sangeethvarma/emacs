@@ -32,7 +32,7 @@
   (bibtex-align-at-equal-sign t)          ; Clean visual database indentation blocks
   (bibtex-user-optional-fields
    '(("keywords" "Keywords to describe the entry" "")
-     ("file" "Link to a document file." "" ))))
+     ("file" "Link to a document file." ""))))
 
 ;;; Citar Reference Discovery Engine
 ;; ---------------------------------------------------------------------
@@ -49,7 +49,7 @@
   (citar-file-note-extensions '("org"))
   (citar-library-paths (list (expand-file-name "PDFs/" san-phd-dir)))
   :config
-  (when (and (eq system-type 'gnu/linux) (getenv "WSLENV"))
+  (when (san/wsl-p)
     (defun san/citar-wsl-file-parser (file-field)
       "Translate Windows-native citation attachment fields cleanly into WSL paths."
       (when file-field
@@ -57,7 +57,7 @@
           (cl-loop for path in (split-string file-field ";")
                    for filename = (car (last (split-string path "[/\\\\]+")))
                    for full-path = (expand-file-name filename pdf-dir)
-                   when (file-exists-p full-path)
+                   when (file-exists-p same full-path)
                    collect full-path))))
 
     (setq citar-file-parser-functions '(san/citar-wsl-file-parser))))

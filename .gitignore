@@ -1,6 +1,8 @@
 custom.el
 package-quickstart.el
 %backup%~
+*.autosave
+*.backup
 elpa/
 etc/
 lisp/
@@ -8,6 +10,7 @@ tree-sitter/
 var/
 explore/
 server/
+.session
 *~
 *.elc
 eln-cache/

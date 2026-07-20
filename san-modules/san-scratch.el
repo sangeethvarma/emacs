@@ -49,7 +49,7 @@ buffer name starts with '*scratch'."
   "Jump to or spawn a persistent configuration scratch sandbox of the chosen TYPE.
 Provides dynamic minibuffer tab-completion via `san-scratch-buffers`."
   (interactive
-   (list (completing-read "🧪 Select Scratch Language Environment: " (mapcar #'car san-scratch-buffers) nil t)))
+   (list (completing-read "Select Scratch Language Environment: " (mapcar #'car san-scratch-buffers) nil t)))
   (let* ((mode (cdr (assoc type san-scratch-buffers)))
          (buf-name (if (string= type "elisp") "*scratch*" (format "*scratch-%s*" type)))
          (buf (get-buffer-create buf-name)))

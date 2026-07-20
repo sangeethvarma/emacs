@@ -9,19 +9,16 @@
 ;;; Code:
 
 ;;; Recent Files Tracking (Recentf Engine)
-;; ---------------------------------------------------------------------
-;; Maintains a persistent, serialized cache of the most recently visited file objects, 
-;; allowing rapid access through completion systems like Consult.
+;; Maintains a persistent cache of recently visited files for rapid access.
 
 (use-package recentf
-  :ensure nil                             ; Built-in core Emacs primitive
+  :ensure nil
   :custom
-  (recentf-max-saved-items 100)           ; Balance lookup depth without degrading boot speeds
+  (recentf-max-saved-items 100)
   :bind
-  (("C-c f r" . recentf-open-files))      ; Direct terminal file history menu toggle
+  (("C-c f r" . recentf-open-files))
   :config
-  ;; Exclude pattern array to prevent populating search histories with internal runtime noise,
-  ;; temporary byte-compilations, auto-saves, or encrypted security volumes.
+  ;; Exclude patterns to prevent internal files from cluttering the list
   (setq recentf-exclude
         '("\\.gpg\\'"
           "\\.gz\\'"
@@ -35,22 +32,19 @@
   (recentf-mode 1))
 
 ;;; Persistent Input History Serialization (Savehist Engine)
-;; ---------------------------------------------------------------------
-;; Records active ring states and variable histories to a flat storage file on disk. 
-;; Guarantees that search strings, execution loops, and code registers survive full 
-;; workstation power cycles.
+;; Records minibuffer histories to survive Emacs restarts.
 
 (use-package savehist
-  :ensure nil                             ; Built-in core Emacs primitive
+  :ensure nil
   :custom
-  ;; Capture rich metadata arrays alongside basic minibuffer inputs
+  ;; Capture various history variables
   (savehist-additional-variables
-   '(search-ring                          ; Active text search entries
-     regexp-search-ring                   ; Regular expression execution histories
-     comint-process-echoes                ; Terminal interface echo markers
-     comint-input-ring                    ; Subshell and PowerShell interactive text pools
-     compile-history                      ; Build compiler flags and run arrays
-     register-alist))                     ; Persistent structural clip boards and point markers
+   '(search-ring
+     regexp-search-ring
+     comint-process-echoes
+     comint-input-ring
+     compile-history
+     register-alist))
   (savehist-file (expand-file-name "savehist" no-littering-var-directory))
   :init
   (savehist-mode 1))

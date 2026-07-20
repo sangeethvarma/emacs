@@ -24,7 +24,7 @@
 Calculates the host-side virtual gateway ip route address on demand, bridging 
 guest buffers to the native, bare-metal GPU Ollama instance running on the host."
     (let ((host-ip "127.0.0.1"))
-      (when (and (eq system-type 'gnu/linux) (getenv "WSLENV"))
+      (when (san/wsl-p)
         (let ((route-ip (string-trim (shell-command-to-string 
                                       "ip route | grep default | awk '{print $3}'"))))
           (unless (string-empty-p route-ip)
@@ -36,22 +36,24 @@ guest buffers to the native, bare-metal GPU Ollama instance running on the host.
         :models '(qwen2.5:1.5b llama3.2))))
 
   ;; --- 2. OPENROUTER CLOUD BACKEND CONFIGURATION ---
-  (defun san/gptel-initialize-openrouter ()
-    "Initialize OpenRouter safely by reading the hidden token file."
-    (let ((key-file (expand-file-name ".openrouter-key" user-emacs-directory)))
-      (if (file-exists-p key-file)
-          (let ((token (string-trim (with-temp-buffer
-                                      (insert-file-contents key-file)
-                                      (buffer-string)))))
-            (gptel-make-openai "OpenRouter"
-              :host "openrouter.ai"
-              :endpoint "/api/v1/chat/completions"
-              :stream t
-              :key token
-              :models '(meta-llama/llama-3.3-70b-instruct
-                        qwen/qwen3-coder:free
-                        perplexity/sonar-reasoning)))
-        (message "Warning: OpenRouter key file missing at %s" key-file))))
+(defun san/gptel-initialize-openrouter ()
+  "Initialize OpenRouter safely by reading the hidden token file."
+  (let ((key-file (expand-file-name ".openrouter-key" user-emacs-directory)))
+    (when (file-exists-p key-file)
+      (set-file-modes key-file #o600))  ; Read/write for owner only
+    (if (file-exists-p key-file)
+        (let ((token (string-trim (with-temp-buffer
+                                    (insert-file-contents key-file)
+                                    (buffer-string)))))
+          (gptel-make-openai "OpenRouter"
+            :host "openrouter.ai"
+            :endpoint "/api/v1/chat/completions"
+            :stream t
+            :key token
+            :models '(meta-llama/llama-3.3-70b-instruct
+                      qwen/qwen3-coder
+                      perplexity/sonar-reasoning)))
+      (message "Warning: OpenRouter key file missing at %s" key-file))))
 
   ;; Initialize both backends on load
   (san/gptel-initialize-ollama)

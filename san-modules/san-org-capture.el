@@ -16,6 +16,7 @@
 ;;; Global Intercept Keybinding Configuration
 ;; ---------------------------------------------------------------------
 ;; Replaces the legacy `global-set-key` command with Emacs 29+ bytecode optimizations.
+
 (keymap-global-set "C-c c" #'org-capture)
 
 ;;; Automated PARA Intake Template Matrix
