@@ -10,7 +10,6 @@
 ;;; Code:
 
 ;;; Native Case Transformations & String Inversion
-;; ---------------------------------------------------------------------
 ;; Binds built-in C-optimized primitives to standard shortcuts, and provides a custom
 ;; utility to selectively toggle case characters across active visual regions.
 
@@ -38,7 +37,6 @@ transforming uppercase letters to lowercase and vice-versa."
       (insert output))))
 
 ;;; Meow Modal Editing Engine (Dvorak Layout Profile)
-;; ---------------------------------------------------------------------
 ;; Customizes the modal selection engine specifically to match a hardware Dvorak profile,
 ;; maintaining muscle memory consistency and high-speed core command reachability.
 
@@ -111,8 +109,8 @@ transforming uppercase letters to lowercase and vice-versa."
    '("/" . meow-search)
    '("s" . meow-right)
    '("S" . meow-right-expand)
-   '("t" . meow-right)
-   '("T" . meow-right-expand)
+   '("t" . meow-search-expand)
+   '("T" . meow-search-expand)
    '("u" . undo)
    '("v" . meow-visit)
    '("w" . meow-next-word)
@@ -129,11 +127,11 @@ transforming uppercase letters to lowercase and vice-versa."
   :ensure t
   :config
   (meow-setup-dvorak)
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak)
+  (when (boundp 'meow-cheatsheet-layout-dvorak)
+    (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak))
   (meow-global-mode 1))
 
 ;;; Spatial Window Switching Layer (Ace-Window Routing)
-;; ---------------------------------------------------------------------
 ;; Implements an accelerated contextual view window switcher. A single execution step 
 ;; cycles focus back-and-forth across simple binary split panes. Repeated immediate 
 ;; secondary execution events elevate the engine into a spatial letter-overlay grid layout.
