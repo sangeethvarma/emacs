@@ -28,12 +28,29 @@
 ;; Deploys the modern Jinx compiler-driven spelling overlay system. 
 ;; It checks words on-the-fly purely within visible viewport boundaries to prevent background 
 ;; I/O processing blocks over massive data logs or academic texts.
-
 (use-package jinx
   :ensure t
-  :hook (text-mode . jinx-mode)           ; Auto-activate spell checking inside all prose documents
-  :bind (("M-$" . jinx-correct)           ; Prompt minibuffer dropdown for word corrections at point
-         ("C-M-$" . jinx-languages)))     ; Dynamically switch or overlay multi-lingual dictionaries
+  :hook ((text-mode . jinx-mode)
+         (prog-mode . jinx-mode))           ; Also enable in programming modes for comments
+  :commands (jinx-mode jinx-correct jinx-languages)
+  :bind (("M-$" . jinx-correct)             ; Prompt minibuffer dropdown for word corrections at point
+         ("C-M-$" . jinx-languages))        ; Dynamically switch or overlay multi-lingual dictionaries
+  :custom
+  (jinx-delay 0.5)                         ; Delay before starting spell check
+  (jinx-idle-delay 1.0)                    ; Idle delay for automatic checking
+  :config
+  ;; Ensure jinx is properly initialized
+  (defun san/setup-jinx-defaults ()
+    "Setup default jinx configuration."
+    (setq jinx--dict-cache nil)  ; Clear cache to force reinitialization
+    (when (bound-and-true-p jinx-mode)
+      (jinx-mode -1)
+      (jinx-mode 1)))
+  
+  ;; Initialize jinx when Emacs is idle
+  (add-hook 'emacs-startup-hook 
+            (lambda () 
+              (run-with-idle-timer 2 nil #'san/setup-jinx-defaults))))
 
 (provide 'san-editing)
 ;;; san-editing.el ends here

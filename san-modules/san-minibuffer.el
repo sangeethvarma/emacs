@@ -49,5 +49,25 @@
   :init
   (savehist-mode 1))
 
+(use-package minibuffer
+  :ensure nil
+  :custom
+  (read-buffer-completion-ignore-case t)
+  (read-file-name-completion-ignore-case t)
+  (completion-ignore-case t)
+  :init
+  ;; Better minibuffer keybindings for directory navigation
+  (keymap-set minibuffer-local-completion-map "C-<backspace>" 'minibuffer-complete-and-exit)
+  (keymap-set minibuffer-local-completion-map "C-w" 'minibuffer-complete-word))
+
+;; Ensure proper backspace behavior in various minibuffer modes
+(with-eval-after-load 'minibuffer
+  (dolist (map '(minibuffer-local-map
+                 minibuffer-local-completion-map
+                 minibuffer-local-must-match-map
+                 minibuffer-local-ns-map))
+    (keymap-set (symbol-value map) "C-h" 'backward-delete-char-untabify)
+    (keymap-set (symbol-value map) "DEL" 'backward-delete-char-untabify)))
+
 (provide 'san-minibuffer)
 ;;; san-minibuffer.el ends here

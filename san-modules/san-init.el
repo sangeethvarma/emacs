@@ -43,5 +43,20 @@
                        "WSL detected but cmd.exe unreachable. URLs will use default handler."
                        :warning))))
 
+;;; Spell Checker Verification
+(defun san/check-spell-checker ()
+  "Check for available spell checking programs and configure appropriately."
+  (cond
+   ((executable-find "aspell")
+    (setq ispell-program-name "aspell")
+    (setq ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")))
+   ((executable-find "hunspell")
+    (setq ispell-program-name "hunspell")
+    (setq ispell-extra-args '("-d" "en_US")))
+   (t
+    (setq ispell-program-name "ispell"))))
+
+(add-hook 'emacs-startup-hook #'san/check-spell-checker)
+
 (provide 'san-init)
 ;;; san-init.el ends here

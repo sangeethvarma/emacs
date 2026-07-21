@@ -5,6 +5,25 @@
 
 ;;; Code:
 
+;;; System Spell Checker Configuration
+(use-package ispell
+  :ensure nil
+  :custom
+  (ispell-program-name "aspell")  ; Use aspell if available
+  (ispell-extra-args '("--sug-mode=ultra" "--lang=en_US"))
+  :config
+  ;; Fallback to hunspell if aspell is not available
+  (unless (executable-find ispell-program-name)
+    (setq ispell-program-name "hunspell"))
+  ;; Fallback to ispell if neither aspell nor hunspell are available
+  (unless (executable-find ispell-program-name)
+    (setq ispell-program-name "ispell"))
+  ;; Disable ispell in corfu if program is not found
+  (unless (executable-find ispell-program-name)
+    (setq corfu-auto-prefix-commands
+          (remove 'ispell-completion-at-point corfu-auto-prefix-commands))))
+
+
 ;;; Vertico Vertical Minibuffer UI
 (use-package vertico
   :ensure t
@@ -20,7 +39,7 @@
   :ensure nil
   :after vertico
   :bind (:map vertico-map
-              ("DEL" . vertico-directory-up)
+              ("C-<backspace>" . vertico-directory-up)
               ("M-DEL" . vertico-directory-delete-word))
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
@@ -29,9 +48,19 @@
   :ensure t
   :custom
   (corfu-auto t)
-  (corfu-quit-no-match t)
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.1)
+  (corfu-quit-no-match 'history)
+  (corfu-preselect-first t)
+  (corfu-on-exact-match nil)
+  (corfu-cycle nil)
+  (corfu-auto-commands '(self-insert-command))
   :init
-  (global-corfu-mode 1))
+  (global-corfu-mode 1)
+  :config
+  ;; Disable problematic completion functions
+  (setq corfu-auto-prefix-commands
+        (remove 'ispell-completion-at-point corfu-auto-prefix-commands)))
 
 ;;; Orderless Pattern Matching Engine
 (use-package orderless
