@@ -36,6 +36,27 @@
         san-sandbox-agenda-file)
   "List of all agenda files for the PARA system.")
 
+(defvar san-agenda-files-cache nil
+  "Cached list of agenda files to avoid repeated file checks.")
+
+(defun san/validate-and-cache-agenda-files ()
+  "Validate agenda files exist and cache the list."
+  (setq san-agenda-files-cache
+        (cl-remove-if-not #'file-exists-p san-agenda-files-list))
+  (setq org-agenda-files san-agenda-files-cache))
+
+;; Use file-notify to refresh cache when files change
+(defun san/setup-agenda-file-monitoring ()
+  "Set up file notifications for agenda files."
+  (dolist (file san-agenda-files-list)
+    (when (file-exists-p file)
+      (file-notify-add-watch file '(change) 
+                            (lambda (event) 
+                              (san/validate-and-cache-agenda-files))))))
+
+(add-hook 'emacs-startup-hook #'san/validate-and-cache-agenda-files)
+(add-hook 'emacs-startup-hook #'san/setup-agenda-file-monitoring)
+
 ;; Initialize agenda files globally
 (setq org-agenda-files san-agenda-files-list)
 

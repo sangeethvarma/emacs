@@ -9,11 +9,6 @@
 ;;; Code:
 
 ;;; Context-Aware Line Navigation (Smart Home Key)
-;; ---------------------------------------------------------------------
-;; Overrides the default structural behavior of standard 'C-a' execution. 
-;; Toggles point position between the true hard line margin and the first non-whitespace 
-;; character indentation block on consecutive hits.
-
 (defun san/beginning-of-line-or-indentation ()
   "Intelligently toggle point between indentation text starts and true hard line margins."
   (interactive)
@@ -24,33 +19,18 @@
 (keymap-global-set "C-a" #'san/beginning-of-line-or-indentation)
 
 ;;; Jinx High-Performance Spell Checker
-;; ---------------------------------------------------------------------
-;; Deploys the modern Jinx compiler-driven spelling overlay system. 
-;; It checks words on-the-fly purely within visible viewport boundaries to prevent background 
-;; I/O processing blocks over massive data logs or academic texts.
 (use-package jinx
   :ensure t
   :hook ((text-mode . jinx-mode)
-         (prog-mode . jinx-mode))           ; Also enable in programming modes for comments
+         (prog-mode . jinx-mode)
+	 (org-mode . jinx-mode)
+	 (markdown-mode . jinx-mode))
   :commands (jinx-mode jinx-correct jinx-languages)
-  :bind (("M-$" . jinx-correct)             ; Prompt minibuffer dropdown for word corrections at point
-         ("C-M-$" . jinx-languages))        ; Dynamically switch or overlay multi-lingual dictionaries
+  :bind (("M-$" . jinx-correct)
+         ("C-M-$" . jinx-languages))
   :custom
-  (jinx-delay 0.5)                         ; Delay before starting spell check
-  (jinx-idle-delay 1.0)                    ; Idle delay for automatic checking
-  :config
-  ;; Ensure jinx is properly initialized
-  (defun san/setup-jinx-defaults ()
-    "Setup default jinx configuration."
-    (setq jinx--dict-cache nil)  ; Clear cache to force reinitialization
-    (when (bound-and-true-p jinx-mode)
-      (jinx-mode -1)
-      (jinx-mode 1)))
-  
-  ;; Initialize jinx when Emacs is idle
-  (add-hook 'emacs-startup-hook 
-            (lambda () 
-              (run-with-idle-timer 2 nil #'san/setup-jinx-defaults))))
+  (jinx-delay 0.7)
+  (jinx-idle-delay 1.2))
 
 (provide 'san-editing)
 ;;; san-editing.el ends here

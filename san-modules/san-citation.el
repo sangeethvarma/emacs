@@ -57,7 +57,7 @@
           (cl-loop for path in (split-string file-field ";")
                    for filename = (car (last (split-string path "[/\\\\]+")))
                    for full-path = (expand-file-name filename pdf-dir)
-                   when (file-exists-p same full-path)
+                   when (file-exists-p full-path)
                    collect full-path))))
 
     (setq citar-file-parser-functions '(san/citar-wsl-file-parser))))

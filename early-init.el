@@ -26,33 +26,41 @@
       initial-scratch-message ";;; scratch buffer\n\n")
 
 ;;; Disable UI Components
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
-(tool-bar-mode -1)
+(when (fboundp 'menu-bar-mode)
+  (menu-bar-mode -1))
+(when (fboundp 'scroll-bar-mode)
+  (scroll-bar-mode -1))
+(when (fboundp 'tool-bar-mode)
+  (tool-bar-mode -1))
 
-;;; Memory Management
+;;; Memory Management - Set high threshold during startup
 (setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.5)
 
-(defvar emacs--file-name-handler-alist file-name-handler-alist)
-(defvar emacs--vc-handled-backends vc-handled-backends)
+;;; File Handler Optimization
+(defvar san--file-name-handler-alist file-name-handler-alist)
+(defvar san--vc-handled-backends vc-handled-backends)
 (setq file-name-handler-alist nil
       vc-handled-backends nil)
 
-;;; Restore Handlers
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq file-name-handler-alist emacs--file-name-handler-alist
-                  vc-handled-backends emacs--vc-handled-backends)
-            (message "Startup complete: %d packages loaded in %.2fs with %d GCs"
-                     (length package-activated-list)
-                     (float-time (time-subtract after-init-time before-init-time))
-                     gcs-done)))
+;;; Restore handlers earlier - moved to after-init-hook
+(defun san/restore-early-init-settings ()
+  "Restore settings that were optimized during early init."
+  (setq file-name-handler-alist san--file-name-handler-alist
+        vc-handled-backends san--vc-handled-backends
+        gc-cons-threshold 16777216  ; 16MB - more reasonable default
+        gc-cons-percentage 0.1)
+  (message "Early init optimizations restored: %d packages loaded in %.2fs"
+           (length package-activated-list)
+           (float-time (time-subtract after-init-time before-init-time))))
+
+(add-hook 'after-init-hook #'san/restore-early-init-settings)
 
 ;;; Frame Naming
 (add-hook 'after-make-frame-functions
           (lambda (frame)
-            (let ((type (if (daemonp) "daemon" "client")))
-              (set-frame-name (format "%s-%d" type (length (frame-list)))))))
+            (let ((type (if (daemonp) "daemon" "client"))
+                  (frame-count (1- (length (frame-list))))) ; Exclude current frame
+              (set-frame-name (format "%s-%d" type frame-count)))))
 
 ;;; early-init.el ends here

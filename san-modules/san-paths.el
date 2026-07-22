@@ -14,17 +14,26 @@
 
 (defun san/validate-vault-root ()
   "Verify that the vault root directory is accessible."
-  (condition-case err
-      (unless (file-directory-p san-vault-root)
-        (display-warning 'san-paths 
-                        (format "Vault root not found: %s. Please check drive mounting." 
-                                san-vault-root)
-                        :warning))
-    (error (display-warning 'san-paths 
-                           (format "Vault validation failed: %s" (error-message-string err))
-                           :error))))
+  (unless (file-directory-p san-vault-root)
+    (display-warning 'san-paths 
+                     (format "Vault root not found: %s. Please check drive mounting." 
+                             san-vault-root)
+                     :warning)))
+
+(defun san/validate-para-directories ()
+  "Ensure all PARA directories exist."
+  (dolist (dir-var '(san-personal-dir san-phd-dir san-startup-dir san-inbox-dir san-sandbox-dir))
+    (let ((dir (symbol-value dir-var)))
+      (unless (file-directory-p dir)
+        (condition-case err
+            (make-directory dir t)
+          (error (display-warning 'san-paths 
+                                 (format "Failed to create directory %s: %s" dir (error-message-string err))
+                                 :error)))))))
 
 (add-hook 'emacs-startup-hook #'san/validate-vault-root)
+(add-hook 'emacs-startup-hook #'san/validate-para-directories)
+
 
 ;;; Structured PARA Area Directory Registry
 (defvar san-personal-dir (expand-file-name "1 - Personal/" san-vault-root)

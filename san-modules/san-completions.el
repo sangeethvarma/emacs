@@ -1,28 +1,22 @@
 ;;; san-completions.el --- Keyboard-Driven Completion Stack -*- lexical-binding: t -*-
 
-;;; Commentary:
-;; This module orchestrates a minimalist, keyboard-driven completion stack.
-
 ;;; Code:
 
-;;; System Spell Checker Configuration
-(use-package ispell
-  :ensure nil
+;;; Jinx High-Performance Spell Checker
+;; ---------------------------------------------------------------------
+;; Deploys the modern Jinx compiler-driven spelling overlay system. 
+;; It checks words on-the-fly purely within visible viewport boundaries to prevent background 
+;; I/O processing blocks over massive data logs or academic texts.
+(use-package jinx
+  :ensure t
+  :hook ((text-mode . jinx-mode)
+         (prog-mode . jinx-mode))           ; Also enable in programming modes for comments
+  :commands (jinx-mode jinx-correct jinx-languages)
+  :bind (("M-$" . jinx-correct)             ; Prompt minibuffer dropdown for word corrections at point
+         ("C-M-$" . jinx-languages))        ; Dynamically switch or overlay multi-lingual dictionaries
   :custom
-  (ispell-program-name "aspell")  ; Use aspell if available
-  (ispell-extra-args '("--sug-mode=ultra" "--lang=en_US"))
-  :config
-  ;; Fallback to hunspell if aspell is not available
-  (unless (executable-find ispell-program-name)
-    (setq ispell-program-name "hunspell"))
-  ;; Fallback to ispell if neither aspell nor hunspell are available
-  (unless (executable-find ispell-program-name)
-    (setq ispell-program-name "ispell"))
-  ;; Disable ispell in corfu if program is not found
-  (unless (executable-find ispell-program-name)
-    (setq corfu-auto-prefix-commands
-          (remove 'ispell-completion-at-point corfu-auto-prefix-commands))))
-
+  (jinx-delay 0.5)                         ; Delay before starting spell check
+  (jinx-idle-delay 1.0))                   ; Idle delay for automatic checking
 
 ;;; Vertico Vertical Minibuffer UI
 (use-package vertico
@@ -50,17 +44,13 @@
   (corfu-auto t)
   (corfu-auto-prefix 2)
   (corfu-auto-delay 0.1)
-  (corfu-quit-no-match 'history)
+  (corfu-quit-no-match always)
   (corfu-preselect-first t)
   (corfu-on-exact-match nil)
   (corfu-cycle nil)
   (corfu-auto-commands '(self-insert-command))
   :init
-  (global-corfu-mode 1)
-  :config
-  ;; Disable problematic completion functions
-  (setq corfu-auto-prefix-commands
-        (remove 'ispell-completion-at-point corfu-auto-prefix-commands)))
+  (global-corfu-mode 1))
 
 ;;; Orderless Pattern Matching Engine
 (use-package orderless
@@ -129,22 +119,30 @@
                     (setq-local meow-insert-xdg-workaround nil))
                 (kill-local-variable 'meow-insert-xdg-workaround)))))
 
+
 ;;; WSL2 Ripgrep Optimization
 (with-eval-after-load 'consult
-  (setq consult-async-input-debounce 0.6
-        consult-async-input-throttle 0.9)
-  (setq consult-ripgrep-args
-        (concat "rg --null --line-buffered --color=never --max-columns=400 "
-                "--path-separator / --smart-case --no-heading --with-filename "
-                "--line-number --follow=no --max-filesize=1M --no-ignore-parent "
-                "--glob '!*/.git/*' "
-                "--glob '!*/Archive/*' "
-                "--glob '!*/Resources/*' "
-                "--glob '!*/clipboard-images/*' "
-                "--glob '!*.pdf' "
-                "--glob '!*.png' "
-                "--glob '!*.jpg' "
-                "--glob '!*.jpeg'")))
+  (setq consult-async-input-debounce 0.8
+        consult-async-input-throttle 1.2
+        consult-async-min-input 3)
+  ;; More restrictive file exclusions for WSL
+  (when (san/wsl-p)
+    (setq consult-ripgrep-args
+          (concat "rg --null --line-buffered --color=never --max-columns=300 "
+                  "--path-separator / --smart-case --no-heading --with-filename "
+                  "--line-number --no-follow --max-filesize=500K "
+                  "--glob '!*/.git/*' "
+                  "--glob '!*/node_modules/*' "
+                  "--glob '!*/__pycache__/*' "
+                  "--glob '!*/Archive/*' "
+                  "--glob '!*/elpa/*' "
+                  "--glob '!*.pdf' "
+                  "--glob '!*.png' "
+                  "--glob '!*.jpg' "
+                  "--glob '!*.jpeg' "
+                  "--glob '!*.svg' "
+                  "--glob '!*.ico'"))))
+
 
 (provide 'san-completions)
 ;;; san-completions.el ends here

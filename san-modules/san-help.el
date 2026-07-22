@@ -48,5 +48,22 @@
 
 (keymap-global-set "C-c h b" #'san/view-backup-log)
 
+;;; Keybinding Documentation Enhancements
+;; ---------------------------------------------------------------------
+(with-eval-after-load 'which-key
+  (which-key-add-key-based-replacements
+    "C-c n" "notes"
+    "C-c n n" "open/create"
+    "C-c n i" "link/create"
+    "C-c n s" "switch silo"
+    "C-c n g" "grep notes"
+    "C-c n f" "find notes"
+    "C-c g" "AI/LLM"
+    "C-c g g" "new chat"
+    "C-c g s" "send selection"
+    "C-c g m" "menu"
+    "C-c g l" "load conversation"))
+
+
 (provide 'san-help)
 ;;; san-help.el ends here

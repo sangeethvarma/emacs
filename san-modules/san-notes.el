@@ -35,6 +35,19 @@
         ("🌱 Personal Life & Health" . ,(expand-file-name "notes/" san-personal-dir))
         ("🧪 Sandbox" . ,(expand-file-name "notes/" san-sandbox-dir))))
 
+(defun san/ensure-denote-silo-directories ()
+  "Ensure all denote silo directories exist."
+  (dolist (silo san-denote-silo-alist)
+    (let ((path (cdr silo)))
+      (unless (file-directory-p path)
+        (condition-case err
+            (make-directory path t)
+          (error (message "Failed to create denote directory %s: %s" 
+                         path (error-message-string err))))))))
+
+(add-hook 'emacs-startup-hook #'san/ensure-denote-silo-directories)
+
+
 (defun san/switch-denote-silo ()
   "Frictionless note silo switching engine.
 Prompts the minibuffer with clean, readable area descriptions. Upon selection, 

@@ -60,7 +60,13 @@
               (start-process "fc-cache-wsl" nil "fc-cache" "-f")
             (file-not-found (display-warning 'san-fonts "fc-cache not found" :warning))))))))
 
-(san/setup-wsl-fonts)
+(defun san/setup-wsl-fonts-deferred ()
+  "Defer WSL font setup to reduce startup time."
+  (run-with-idle-timer 5 nil #'san/setup-wsl-fonts))
+
+(when (san/wsl-p)
+  (add-hook 'emacs-startup-hook #'san/setup-wsl-fonts-deferred))
+
 
 ;;; Malayalam Script Typography Engine
 (defun san/set-malayalam-font (frame)

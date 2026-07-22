@@ -16,21 +16,19 @@
 ;; via 'wslpath -m', then dispatches an isolated PowerShell script to verify if an image 
 ;; structure is present on the host clipboard ring, saving it as an uncompressed PNG.
 
-(defun san/wsl-clipboard-to-file (filename)
-  "Extract graphic image sequences from the Windows clipboard and save them to FILENAME."
-  (let* ((wslpath-cmd (format "wslpath -m %s" (shell-quote-argument filename)))
-         (win-path (string-trim (shell-command-to-string wslpath-cmd)))
-         (ps-cmd (concat "Add-Type -AssemblyName System.Windows.Forms; "
-                         "Add-Type -AssemblyName System.Drawing; "
-                         "if ([System.Windows.Forms.Clipboard]::ContainsImage()) { "
-                         "  $img = [System.Windows.Forms.Clipboard]::GetImage(); "
-                         "  $img.Save('" win-path "', [System.Drawing.Imaging.ImageFormat]::Png) "
-                         "}")))
-    (call-process "powershell.exe" nil nil nil 
-                  "-STA" 
-                  "-NoProfile" 
-                  "-Command" 
-                  ps-cmd)))
+     (defun san/wsl-clipboard-to-file (filename)
+       "Extract graphic image sequences from the Windows clipboard and save them to FILENAME asynchronously."
+       (let* ((expanded-filename (expand-file-name filename))
+              (win-path (shell-quote-argument 
+                         (string-trim (shell-command-to-string 
+                                       (format "wslpath -m %s" (shell-quote-argument expanded-filename))))))
+              (ps-cmd (concat "Add-Type -AssemblyName System.Windows.Forms; "
+                              "[System.Windows.Forms.Clipboard]::ContainsImage() | Out-Null; "
+                              "if ([System.Windows.Forms.Clipboard]::ContainsImage()) { "
+                              (format "  [System.Windows.Forms.Clipboard]::GetImage().Save('%s', [System.Drawing.Imaging.ImageFormat]::Png) " win-path)
+                              "}")))
+         (start-process "powershell-save-image" nil "powershell.exe" 
+                        "-STA" "-NoProfile" "-Command" ps-cmd)))
 
 ;;; Org-Download Architecture Configuration
 ;; ---------------------------------------------------------------------
