@@ -20,20 +20,22 @@ buffer name starts with '*scratch'."
 
 (use-package persistent-scratch
   :ensure t
+  :commands (persistent-scratch-mode persistent-scratch-setup-default)
   :config
   ;; Configure serialization rules and specify metadata parameters to track
   (setq persistent-scratch-scratch-buffer-p-function #'san/persistent-scratch-buffer-p
-        persistent-scratch-what-to-save '(major-mode point))
-  
-  ;; Defer baseline file restoration out of the use-package initialization block.
-  ;; This ensures the file-saving mechanics do not execute until the master file loader
-  ;; scope goes out of context, preventing dynamic scope conflicts.
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (persistent-scratch-setup-default)
-              (when (get-buffer "*scratch*")
-                (with-current-buffer "*scratch*"
-                  (persistent-scratch-mode 1))))))
+        persistent-scratch-what-to-save '(major-mode point)))
+
+(defun san/initialize-persistent-scratch ()
+  "Initialize persistent scratch buffers after full startup."
+  (persistent-scratch-setup-default)
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (and (string-prefix-p "*scratch" (buffer-name))
+                 (not (eq major-mode 'fundamental-mode)))
+        (persistent-scratch-mode 1)))))
+
+(add-hook 'emacs-startup-hook #'san/initialize-persistent-scratch)
 
 ;;; Multi-Mode Scratch Environment Manager
 ;; ---------------------------------------------------------------------
@@ -57,8 +59,7 @@ Provides dynamic minibuffer tab-completion via `san-scratch-buffers`."
     (with-current-buffer buf
       (unless (eq major-mode mode)
         (funcall mode))
-      (when (and (fboundp 'persistent-scratch-mode) (not persistent-scratch-mode))
-        (persistent-scratch-mode 1)))
+      (persistent-scratch-mode 1))
     
     (switch-to-buffer buf)))
 

@@ -3,8 +3,8 @@
 ;;; Commentary:
 ;; This module configures global text manipulation utilities and core typing mechanics.
 ;; It sets up:
-;; - Context-aware line navigation overrides (Smart Home key behaviors).
-;; - High-performance, JIT byte-compiled contextual spell checking via Jinx.
+;; - Context-aware line navigation overrides.
+;; - High-performance spell checking via Jinx.
 
 ;;; Code:
 
@@ -23,14 +23,11 @@
   :ensure t
   :hook ((text-mode . jinx-mode)
          (prog-mode . jinx-mode)
-	 (org-mode . jinx-mode)
-	 (markdown-mode . jinx-mode))
+         (org-mode . jinx-mode)
+         (markdown-mode . jinx-mode))
   :commands (jinx-mode jinx-correct jinx-languages)
   :bind (("M-$" . jinx-correct)
-         ("C-M-$" . jinx-languages))
-  :custom
-  (jinx-delay 0.7)
-  (jinx-idle-delay 1.2))
+         ("C-M-$" . jinx-languages)))
 
 (provide 'san-editing)
 ;;; san-editing.el ends here

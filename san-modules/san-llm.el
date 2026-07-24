@@ -104,7 +104,7 @@
   "Return the save directory path for gptel conversations."
   (let ((dir (if (boundp 'san-inbox-dir)
                  (expand-file-name "gptel-conversations/" san-inbox-dir)
-               (expand-file-name "gptel-conversations/" user-emacs-directory))))
+               (expand-file-name "gptm-conversations/" user-emacs-directory))))
     (unless (file-directory-p dir)
       (make-directory dir t))
     dir))
@@ -206,7 +206,7 @@
               :stream t
               :key token
               :models '(meta-llama/llama-3.3-70b-instruct
-                        qwen/qwen3-coder
+                        qwen/qwen3-coder:latest
                         perplexity/sonar-reasoning
                         deepseek/deepseek-r1
                         google/gemini-2.5-pro

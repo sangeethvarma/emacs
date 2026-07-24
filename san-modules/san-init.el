@@ -13,7 +13,17 @@
         gcmh-auto-idle-delay-factor 10
         gcmh-high-cons-threshold (* 1024 1024 1024))
   :config
-  (gcmh-mode 1))
+  ;; Take over GC management from early init optimizations
+  (defun san/setup-gcmh ()
+    "Setup gcmh to take over GC management."
+    (gcmh-mode 1)
+    ;; restore normal GC settings - gcmh will manage them
+    (setq gc-cons-threshold 16777216  ; 16MB - baseline
+          gc-cons-percentage 0.1)
+    (message "GC management transferred to gcmh"))
+  
+  ;; Run this after all packages are initialized
+  (add-hook 'emacs-startup-hook #'san/setup-gcmh))
 
 ;;; WSL Integration
 (defun san/wsl-p ()
@@ -26,12 +36,12 @@
                   (insert-file-contents "/proc/version")
                   (string-match-p "microsoft" (buffer-string)))))))
 
-
 (defun emacs--detect-wsl ()
   "Check if Emacs is running inside a WSL environment."
   (san/wsl-p))
 
 (when (emacs--detect-wsl)
+  ;; This is now the single point of truth for WSL clipboard setup
   (setq select-enable-clipboard t)
   
   (let ((cmd-exe "/mnt/c/Windows/System32/cmd.exe"))
@@ -42,6 +52,18 @@
       (display-warning 'san-init
                        "WSL detected but cmd.exe unreachable. URLs will use default handler."
                        :warning))))
+
+;;; Safe Windows Username Detection
+(defun san/get-windows-username ()
+  "Safely get Windows username with error handling."
+  (condition-case err
+      (let ((win-user (ignore-errors 
+                        (string-trim (shell-command-to-string "cmd.exe /c echo %USERNAME%")))))
+        (when (and win-user (not (string-empty-p win-user)))
+          win-user))
+    (error 
+     (display-warning 'san-init "Failed to retrieve Windows username" :warning)
+     nil)))
 
 ;;; Spell Checker Verification
 (defun san/check-spell-checker ()
@@ -56,7 +78,12 @@
    (t
     (setq ispell-program-name "ispell"))))
 
-(add-hook 'emacs-startup-hook #'san/check-spell-checker)
+;; Use idle timer to avoid blocking startup
+(defun san/delayed-spell-checker-setup ()
+  "Setup spell checker with idle delay."
+  (run-with-idle-timer 1 nil #'san/check-spell-checker))
+
+(add-hook 'emacs-startup-hook #'san/delayed-spell-checker-setup)
 
 (provide 'san-init)
 ;;; san-init.el ends here

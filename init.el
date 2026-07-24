@@ -76,9 +76,18 @@
 (require 'san-scratch)
 (require 'san-view-files)
 (require 'san-org-images)
+(require 'san-org-latex)
 
 ;; Experimental modules
 (require 'san-llm)      ; Language model integration
 ;; (require 'san-elfeed)   ; RSS feed reader
+
+;;; Startup Completion Notification
+(defun san/startup-complete ()
+  "Mark startup as complete and notify."
+  (setq san-startup-phase 'fully-loaded)
+  (message "Emacs fully loaded - all modules initialized"))
+
+(add-hook 'after-init-hook #'san/startup-complete)
 
 ;;; init.el ends here

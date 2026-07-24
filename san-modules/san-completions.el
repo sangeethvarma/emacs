@@ -2,22 +2,6 @@
 
 ;;; Code:
 
-;;; Jinx High-Performance Spell Checker
-;; ---------------------------------------------------------------------
-;; Deploys the modern Jinx compiler-driven spelling overlay system. 
-;; It checks words on-the-fly purely within visible viewport boundaries to prevent background 
-;; I/O processing blocks over massive data logs or academic texts.
-(use-package jinx
-  :ensure t
-  :hook ((text-mode . jinx-mode)
-         (prog-mode . jinx-mode))           ; Also enable in programming modes for comments
-  :commands (jinx-mode jinx-correct jinx-languages)
-  :bind (("M-$" . jinx-correct)             ; Prompt minibuffer dropdown for word corrections at point
-         ("C-M-$" . jinx-languages))        ; Dynamically switch or overlay multi-lingual dictionaries
-  :custom
-  (jinx-delay 0.5)                         ; Delay before starting spell check
-  (jinx-idle-delay 1.0))                   ; Idle delay for automatic checking
-
 ;;; Vertico Vertical Minibuffer UI
 (use-package vertico
   :ensure t
@@ -44,12 +28,14 @@
   (corfu-auto t)
   (corfu-auto-prefix 2)
   (corfu-auto-delay 0.1)
-  (corfu-quit-no-match always)
+  (corfu-quit-no-match 'always)
   (corfu-preselect-first t)
   (corfu-on-exact-match nil)
   (corfu-cycle nil)
   (corfu-auto-commands '(self-insert-command))
   :init
+  (setq-default completion-at-point-functions
+		(remove 'ispell-completion-at-point completion-at-point-functions))
   (global-corfu-mode 1))
 
 ;;; Orderless Pattern Matching Engine
@@ -83,7 +69,49 @@
          ("M-s M-o" . consult-outline)
          ("M-s M-l" . consult-line)
          ("M-s M-b" . consult-buffer)
-         ("C-x M-b" . consult-buffer)))
+         ("C-x M-b" . consult-buffer))
+  :config
+  ;; WSL2 Ripgrep Optimization - Fixed path resolution issues with mounted volumes
+  (setq consult-async-input-debounce 0.8
+        consult-async-input-throttle 1.2
+        consult-async-min-input 3)
+  ;; More restrictive file exclusions for WSL to prevent cross-filesystem errors
+  (when (san/wsl-p)
+    ;; Function to translate problematic paths for ripgrep in WSL
+    (defun san/wsl-ripgrep-path-fix (input)
+      "Fix path issues for ripgrep when running in WSL."
+      (if (string-match "\\`/mnt/\\([a-z]\\)/" input)
+          (let ((drive (match-string 1 input))
+                (rest (substring input (match-end 0))))
+            (format "/mnt/%s%s" drive rest))
+        input))
+    
+    ;; Advise consult-ripgrep to fix paths before execution
+    (defun san/consult-ripgrep-advice (orig-fun &rest args)
+      "Advise consult-ripgrep to handle Windows paths correctly in WSL."
+      (let ((default-directory (san/wsl-ripgrep-path-fix default-directory)))
+        (apply orig-fun args)))
+    
+    (advice-add 'consult-ripgrep :around #'san/consult-ripgrep-advice)
+    
+    ;; Configure ripgrep arguments for better cross-platform compatibility
+    (setq consult-ripgrep-args
+          (concat "rg --null --line-buffered --color=never --max-columns=300 "
+                  "--path-separator / --smart-case --no-heading --with-filename "
+                  "--line-number --no-follow --max-filesize=500K "
+                  "--glob '!*/.git/*' "
+                  "--glob '!*/node_modules/*' "
+                  "--glob '!*/__pycache__/*' "
+                  "--glob '!*/Archive/*' "
+                  "--glob '!*/elpa/*' "
+                  "--glob '!*.pdf' "
+                  "--glob '!*.png' "
+                  "--glob '!*.jpg' "
+                  "--glob '!*.jpeg' "
+                  "--glob '!*.svg' "
+                  "--glob '!*.ico' "
+                  "--glob '!*/System Volume Information' "
+                  "--glob '!*/\\$Recycle.Bin'"))))
 
 ;;; Embark Context Actions Menu & Pipelines
 (use-package embark
@@ -118,31 +146,6 @@
                   (when (boundp 'meow-insert-xdg-workaround)
                     (setq-local meow-insert-xdg-workaround nil))
                 (kill-local-variable 'meow-insert-xdg-workaround)))))
-
-
-;;; WSL2 Ripgrep Optimization
-(with-eval-after-load 'consult
-  (setq consult-async-input-debounce 0.8
-        consult-async-input-throttle 1.2
-        consult-async-min-input 3)
-  ;; More restrictive file exclusions for WSL
-  (when (san/wsl-p)
-    (setq consult-ripgrep-args
-          (concat "rg --null --line-buffered --color=never --max-columns=300 "
-                  "--path-separator / --smart-case --no-heading --with-filename "
-                  "--line-number --no-follow --max-filesize=500K "
-                  "--glob '!*/.git/*' "
-                  "--glob '!*/node_modules/*' "
-                  "--glob '!*/__pycache__/*' "
-                  "--glob '!*/Archive/*' "
-                  "--glob '!*/elpa/*' "
-                  "--glob '!*.pdf' "
-                  "--glob '!*.png' "
-                  "--glob '!*.jpg' "
-                  "--glob '!*.jpeg' "
-                  "--glob '!*.svg' "
-                  "--glob '!*.ico'"))))
-
 
 (provide 'san-completions)
 ;;; san-completions.el ends here

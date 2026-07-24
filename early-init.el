@@ -43,18 +43,23 @@
 (setq file-name-handler-alist nil
       vc-handled-backends nil)
 
-;;; Restore handlers earlier - moved to after-init-hook
+;;; Startup Phase Tracking
+(defvar san-startup-phase 'early-init
+  "Current startup phase for coordination between early-init and modules.")
+
+;;; Defer GC restoration until after package initialization
 (defun san/restore-early-init-settings ()
   "Restore settings that were optimized during early init."
   (setq file-name-handler-alist san--file-name-handler-alist
         vc-handled-backends san--vc-handled-backends
-        gc-cons-threshold 16777216  ; 16MB - more reasonable default
-        gc-cons-percentage 0.1)
+        san-startup-phase 'early-restored)
+  ;; Keep high GC threshold until gcmh takes over
   (message "Early init optimizations restored: %d packages loaded in %.2fs"
            (length package-activated-list)
            (float-time (time-subtract after-init-time before-init-time))))
 
 (add-hook 'after-init-hook #'san/restore-early-init-settings)
+
 
 ;;; Frame Naming
 (add-hook 'after-make-frame-functions

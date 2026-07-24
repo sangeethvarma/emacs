@@ -83,5 +83,10 @@
                 (cl-letf (((symbol-function 'y-or-n-p) (lambda (&rest _) t)))
                   (apply orig-fun args)))))
 
+(with-eval-after-load 'ox-latex
+  (setq org-cite-export-processors
+        '((latex bibtex)
+          (t basic))))
+
 (provide 'san-citation)
 ;;; san-citation.el ends here
