@@ -21,8 +21,8 @@
       dired-use-ls-dired t)
 
 ;;; Automated File Sync Integrity
-(setq create-lockfiles nil
-      global-auto-revert-mode 1)
+(setq create-lockfiles nil)
+(global-auto-revert-mode 1)
 
 ;;; Intelligent Termination
 (defun san/smart-quit (&optional arg)
