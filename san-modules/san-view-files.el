@@ -15,15 +15,15 @@
 ;; high-legibility buffer maps and enforces an automated midnight-mode color inversion hook 
 ;; to optimize reading comfort.
 
-(use-package pdf-tools
-  :ensure t
-  :magic ("%PDF" . pdf-view-mode)
-  :hook (pdf-view-mode . pdf-view-midnight-minor-mode)
-  :bind (:map pdf-view-mode-map
-              ("C-s" . isearch-forward))   ; Bind predictable in-buffer search execution
-  :config
-  (pdf-tools-install :no-query)           ; Initialize underlying render binaries silently
-  (setq-default pdf-view-display-size 'fit-page))
+;; (use-package pdf-tools
+;;   :ensure t
+;;   :magic ("%PDF" . pdf-view-mode)
+;;   :hook (pdf-view-mode . pdf-view-midnight-minor-mode)
+;;   :bind (:map pdf-view-mode-map
+;;               ("C-s" . isearch-forward))   ; Bind predictable in-buffer search execution
+;;   :config
+;;   (pdf-tools-install :no-query)           ; Initialize underlying render binaries silently
+;;   (setq-default pdf-view-display-size 'fit-page))
 
 ;;; Doc-View Core Settings (Fallback Document Handling)
 ;; ---------------------------------------------------------------------

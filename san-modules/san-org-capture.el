@@ -19,6 +19,27 @@
 
 (keymap-global-set "C-c c" #'org-capture)
 
+;;; Cross-Area Project Capture
+;; ---------------------------------------------------------------------
+(defvar san-project-area-alist
+  `(("PhD"      . (,(expand-file-name "phd-todo.org" san-phd-dir)          "research"))
+    ("Startup"  . (,(expand-file-name "iterrate-todo.org" san-startup-dir) "startup"))
+    ("Personal" . (,(expand-file-name "personal-todo.org" san-personal-dir) "life"))
+    ("Sandbox"  . (,(expand-file-name "sandbox-todo.org" san-sandbox-dir)  "sandbox")))
+  "PARA areas available for project capture: label -> (todo-file default-tag).")
+
+(defvar san-capture-project-tag nil
+  "Area tag for the project currently being captured; set by `san/capture-project-target'.")
+
+(defun san/capture-project-target ()
+  "Prompt for a PARA area and jump to the end of its todo file for capture."
+  (let* ((choice (completing-read "Area: " (mapcar #'car san-project-area-alist) nil t))
+         (entry (cdr (assoc choice san-project-area-alist)))
+         (file (car entry)))
+    (setq san-capture-project-tag (cadr entry))
+    (set-buffer (org-capture-target-buffer file))
+    (goto-char (point-max))))
+
 ;;; Automated PARA Intake Template Matrix
 ;; ---------------------------------------------------------------------
 ;; Evaluated using a backtick structure so that platform-specific directory vectors 
@@ -27,6 +48,13 @@
 
 (setq org-capture-templates
       `(
+	;; Cross-Area Project Creation
+	;; ---------------------------------------------------------------------
+	("P" "📌 New Project (any area)" entry
+	 (function san/capture-project-target)
+	 "* %^{Project outcome} :project:%(identity san-capture-project-tag):\nDEADLINE: %^{Target date}t\n%U\n** TODO %^{First next action}\n%?"
+	 :empty-lines 1)
+	
         ;; PhD Doctoral Research Tasks & Logistics
         ;; ---------------------------------------------------------------------
         ("r" "🎓 PhD Research Task" entry
@@ -41,15 +69,15 @@
 
         ;; Iterrate EdTech Startup Action Items & Vaults
         ;; ---------------------------------------------------------------------
-        ("s" "🚀 Startup Idea / Task" entry
-         (file ,(expand-file-name "iterrate-todo.org" san-startup-dir))
-         "* TODO %^{Startup Action}\n%U\n%?"
-         :empty-lines 1)
-         
-        ("i" "🚀 Idea Dock (Startup Notes)" entry
-         (file ,(expand-file-name "notes/idea-dock.org" san-startup-dir))
-         "* IDEA %^{Idea Title}\n%U\n%?\n"
-         :empty-lines 1)
+	("s" "🚀 Startup Idea / Task" entry
+	 (file ,(expand-file-name "iterrate-todo.org" san-startup-dir))
+	 "* TODO %^{Startup Action} :startup:\n%U\n%?"
+	 :empty-lines 1)
+	
+	("i" "🚀 Idea Dock (Startup Notes)" entry
+	 (file ,(expand-file-name "notes/idea-dock.org" san-startup-dir))
+	 "* IDEA %^{Idea Title} :startup:\n%U\n%?\n"
+	 :empty-lines 1)
 
         ;; Personal Life Maintenance, Metrics, & Health
         ;; ---------------------------------------------------------------------

@@ -51,8 +51,8 @@
   (dolist (file san-agenda-files-list)
     (when (file-exists-p file)
       (file-notify-add-watch file '(change) 
-                            (lambda (event) 
-                              (san/validate-and-cache-agenda-files))))))
+                             (lambda (event) 
+                               (san/validate-and-cache-agenda-files))))))
 
 (add-hook 'emacs-startup-hook #'san/validate-and-cache-agenda-files)
 (add-hook 'emacs-startup-hook #'san/setup-agenda-file-monitoring)
@@ -68,29 +68,27 @@
   :config
   (org-super-agenda-mode 1)
   (setq org-super-agenda-groups
-        '((:name "🔥 Critical Priority"
-           :priority "A")
+	'((:discard (:tag ("someday" "maybe")))
+          (:name "🔥 Critical Priority"
+		 :priority "A")
           (:name "⏰ Due Soon"
-           :deadline past
-           :deadline today
-           :deadline future)
+		 :deadline past
+		 :deadline today
+		 :deadline future)
           (:name "🏃 In Progress"
-           :todo "STRT")
+		 :todo "STRT")
           (:name "⏳ Blocked"
-           :todo "WAIT")
-          (:name "📅 Recently Added" 
-           :tag "recent")
+		 :todo "WAIT")
           (:name "🎓 Academic Work"
-           :tag "research"
-           :tag "academic")
+		 :tag "research"
+		 :tag "academic")
           (:name "🚀 Startup Projects"
-           :tag "startup"
-           :tag "business")
+		 :tag "startup"
+		 :tag "business")
           (:name "🌱 Personal"
-           :tag "health"
-           :tag "life"
-           :tag "personal")
-          (:discard (:tag ("someday" "maybe"))))))
+		 :tag "health"
+		 :tag "life"
+		 :tag "personal"))))
 
 ;;; Org-Mode Task System Configuration
 ;; ---------------------------------------------------------------------
@@ -106,8 +104,14 @@
   (org-hierarchical-todo-statistics nil)
   (org-refile-targets '((nil :maxlevel . 3) (org-agenda-files :maxlevel . 3)))
   (org-refile-use-outline-path 'file)
-  (org-outline-path-complete-in-steps nil)
-  (org-auto-archive-untagged-entries t))
+  (org-outline-path-complete-in-steps nil))
+
+;;; Project Tracking (stuck-project detection)
+;; ---------------------------------------------------------------------
+;; A "project" is any headline tagged :project: containing TODO/STRT children.
+;; A project with none is "stuck" — surfaced automatically below.
+(setq org-stuck-projects
+      '("+project-someday-maybe" ("TODO" "STRT") nil ""))
 
 ;;; Agenda View Configuration
 ;; ---------------------------------------------------------------------
@@ -122,8 +126,9 @@
                         (org-agenda-start-on-weekday nil)
                         (org-agenda-show-all-dates nil)
                         (org-agenda-overriding-header "📅 Today's Schedule")))
+	    (stuck "" ((org-agenda-overriding-header "🪤 Stuck Projects")))
             (todo "STRT" ((org-agenda-overriding-header "🔥 In Progress")))
-            (tags-todo "WAIT" ((org-agenda-overriding-header "⏳ Waiting For")))
+	    (todo "WAIT" ((org-agenda-overriding-header "⏳ Waiting For")))
             (tags-todo "+PRIORITY=\"A\"" ((org-agenda-overriding-header "🔴 High Priority")))
             (tags "inbox" ((org-agenda-overriding-header "📥 Inbox Items")))))
           
@@ -135,23 +140,23 @@
           
           ("w" "💼 Work Context"
            ((tags-todo "research|admin" 
-                      ((org-agenda-overriding-header "🎓 PhD Work")))
+		       ((org-agenda-overriding-header "🎓 PhD Work")))
             (tags-todo "startup" 
-                      ((org-agenda-overriding-header "🚀 Startup Tasks")))
+		       ((org-agenda-overriding-header "🚀 Startup Tasks")))
             (todo "WAIT" ((org-agenda-overriding-header "⏳ Awaiting Response")))))
           
           ("l" "🌱 Personal Context"
            ((tags-todo "health" 
-                      ((org-agenda-overriding-header "💪 Health & Fitness")))
+		       ((org-agenda-overriding-header "💪 Health & Fitness")))
             (tags-todo "life" 
-                      ((org-agenda-overriding-header "🏠 Life Management")))
+		       ((org-agenda-overriding-header "🏠 Life Management")))
             (agenda "" ((org-agenda-span 3)
-                       (org-agenda-start-on-weekday nil)
-                       (org-agenda-overriding-header "📅 Personal Schedule")))))
+			(org-agenda-start-on-weekday nil)
+			(org-agenda-overriding-header "📅 Personal Schedule")))))
           
           ("s" "📊 Status Overview"
            ((todo "STRT" ((org-agenda-overriding-header "🏃 Currently Working On")))
-            (tags-todo "WAIT" ((org-agenda-overriding-header "⏳ Stuck/Waiting")))
+	    (todo "WAIT" ((org-agenda-overriding-header "⏳ Stuck/Waiting")))
             (todo "TODO" ((org-agenda-overriding-header "📋 Backlog")))
             (tags "+TIMESTAMP_IA>today-7" 
                   ((org-agenda-overriding-header "📆 Recently Added"))))
@@ -165,9 +170,9 @@
   ;; Agenda display configuration
   (setq org-agenda-block-separator ?─)
   (setq org-agenda-time-grid '((daily today require-timed) 
-                              (800 1000 1200 1400 1600 1800 2000)
-                              "......" 
-                              "----------------"))
+			       (800 1000 1200 1400 1600 1800 2000)
+			       "......" 
+			       "----------------"))
   (setq org-agenda-current-time-string "───────────── Now ─────────────")
   (setq org-agenda-show-current-time-in-grid t)
   (setq org-agenda-span 'week)
@@ -226,7 +231,7 @@
         (message "No files found to refile.")
       (let* ((prompt (if (= count 1)
                          (format "Refile '%s' to: " (file-name-nondirectory (car files)))
-                       (format "Refile %d marked files to: " count)))
+		       (format "Refile %d marked files to: " count)))
              (chosen-key (completing-read prompt
                                           (mapcar #'car san-resource-folder-alist)
                                           nil t))
@@ -243,14 +248,25 @@
                  (destination (expand-file-name short-name target-dir)))
             (condition-case err
                 (rename-file file destination)
-              (file-already-exists
-               (if (yes-or-no-p (format "File %s exists. Overwrite? " 
+	      (file-already-exists
+	       (if (yes-or-no-p (format "File %s exists. Overwrite? " 
                                         (file-name-nondirectory destination)))
                    (rename-file file destination t)
                  (message "Skipped: %s" (file-name-nondirectory file)))))))
         
         (revert-buffer)
         (message "Refiled %d file(s) to %s" count chosen-key)))))
+
+;;; Auto-Archive on Completion
+;;; ---------------------------------------------------------------------
+(defun san/auto-archive-on-done ()
+  "Archive the current subtree when it's marked DONE or CANC."
+  (when (member (org-get-todo-state) '("DONE" "CANC"))
+    (org-archive-subtree)
+    ;; keep point sane after the subtree moves
+    (goto-char (org-log-beginning))))
+
+(add-hook 'org-after-todo-state-change-hook #'san/auto-archive-on-done)
 
 ;; Dired integration
 (with-eval-after-load 'dired
