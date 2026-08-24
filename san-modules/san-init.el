@@ -1,33 +1,28 @@
-;;; san-init.el --- Early Runtime Optimizations -*- lexical-binding: t -*-
+;;; san-init.el --- GC tuning and WSL integration -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; Handles garbage collection optimization and WSL integration.
+;; Runs first: garbage collection handoff, WSL detection, and the
+;; WSL-specific clipboard/browser/username helpers other modules use.
 
 ;;; Code:
 
-;;; Garbage Collection Management
+;;; Garbage collection
+;; early-init.el disables GC during startup; gcmh takes over once Emacs
+;; is idle so we get low pause times without babysitting thresholds by hand.
 (use-package gcmh
   :ensure t
-  :init
-  (setq gcmh-idle-delay 'auto
-        gcmh-auto-idle-delay-factor 10
-        gcmh-high-cons-threshold (* 1024 1024 1024))
+  :custom
+  (gcmh-idle-delay 'auto)
+  (gcmh-auto-idle-delay-factor 10)
+  (gcmh-high-cons-threshold (* 1024 1024 1024))
+  :hook (emacs-startup . gcmh-mode)
   :config
-  ;; Take over GC management from early init optimizations
-  (defun san/setup-gcmh ()
-    "Setup gcmh to take over GC management."
-    (gcmh-mode 1)
-    ;; restore normal GC settings - gcmh will manage them
-    (setq gc-cons-threshold 16777216  ; 16MB - baseline
-          gc-cons-percentage 0.1)
-    (message "GC management transferred to gcmh"))
-  
-  ;; Run this after all packages are initialized
-  (add-hook 'emacs-startup-hook #'san/setup-gcmh))
+  (setq gc-cons-threshold 16777216
+        gc-cons-percentage 0.1))
 
-;;; WSL Integration
+;;; WSL detection
 (defun san/wsl-p ()
-  "Return non-nil if running under WSL."
+  "Return non-nil if this Emacs is running inside WSL."
   (and (eq system-type 'gnu/linux)
        (or (getenv "WSL_DISTRO_NAME")
            (getenv "WSLENV")
@@ -36,54 +31,44 @@
                   (insert-file-contents "/proc/version")
                   (string-match-p "microsoft" (buffer-string)))))))
 
-(defun emacs--detect-wsl ()
-  "Check if Emacs is running inside a WSL environment."
-  (san/wsl-p))
-
-(when (emacs--detect-wsl)
-  ;; This is now the single point of truth for WSL clipboard setup
+(when (san/wsl-p)
   (setq select-enable-clipboard t)
-  
   (let ((cmd-exe "/mnt/c/Windows/System32/cmd.exe"))
     (if (file-exists-p cmd-exe)
         (setq browse-url-generic-program cmd-exe
               browse-url-generic-args '("/c" "start" "")
               browse-url-browser-function #'browse-url-generic)
-      (display-warning 'san-init
-                       "WSL detected but cmd.exe unreachable. URLs will use default handler."
-                       :warning))))
+      (display-warning 'san-init "WSL detected but cmd.exe unreachable; URLs will use the default handler." :warning))))
 
-;;; Safe Windows Username Detection
 (defun san/get-windows-username ()
-  "Safely get Windows username with error handling."
-  (condition-case err
-      (let ((win-user (ignore-errors 
-                        (string-trim (shell-command-to-string "cmd.exe /c echo %USERNAME%")))))
-        (when (and win-user (not (string-empty-p win-user)))
-          win-user))
-    (error 
-     (display-warning 'san-init "Failed to retrieve Windows username" :warning)
-     nil)))
+  "Return the Windows username via cmd.exe, or nil if unavailable.
+Used by modules that need to reach into the Windows filesystem (e.g.
+locating SumatraPDF under a user's scoop install). cmd.exe prints a
+\"UNC paths are not supported\" banner before its output whenever it's
+launched from a WSL path (which default-directory always is here), so
+we take the last output line rather than the whole trimmed string."
+  (when (executable-find "cmd.exe")
+    (let* ((output (shell-command-to-string "cmd.exe /c echo %USERNAME%"))
+           (user (car (last (split-string output "[\r\n]+" t)))))
+      (unless (or (null user) (string-empty-p user) (string-match-p "%USERNAME%" user))
+        user))))
 
-;;; Spell Checker Verification
+;;; Spell checker
+;; Deferred to idle so `executable-find' calls don't add to startup time.
 (defun san/check-spell-checker ()
-  "Check for available spell checking programs and configure appropriately."
+  "Point ispell at whichever spell-checking program is installed."
   (cond
    ((executable-find "aspell")
-    (setq ispell-program-name "aspell")
-    (setq ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")))
+    (setq ispell-program-name "aspell"
+          ispell-extra-args '("--sug-mode=ultra" "--lang=en_US")))
    ((executable-find "hunspell")
-    (setq ispell-program-name "hunspell")
-    (setq ispell-extra-args '("-d" "en_US")))
+    (setq ispell-program-name "hunspell"
+          ispell-extra-args '("-d" "en_US")))
    (t
     (setq ispell-program-name "ispell"))))
 
-;; Use idle timer to avoid blocking startup
-(defun san/delayed-spell-checker-setup ()
-  "Setup spell checker with idle delay."
-  (run-with-idle-timer 1 nil #'san/check-spell-checker))
-
-(add-hook 'emacs-startup-hook #'san/delayed-spell-checker-setup)
+(add-hook 'emacs-startup-hook
+          (lambda () (run-with-idle-timer 1 nil #'san/check-spell-checker)))
 
 (provide 'san-init)
 ;;; san-init.el ends here

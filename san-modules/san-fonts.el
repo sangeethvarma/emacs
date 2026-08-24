@@ -1,24 +1,18 @@
-;;; san-fonts.el --- Font & Typography Configuration -*- lexical-binding: t -*-
+;;; san-fonts.el --- Fonts and typography -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; Configures graphical frame font mapping and typography.
+;; Default typeface, icon fonts, WSL→Windows font linking, and Malayalam
+;; script fallback.
 
 ;;; Code:
 
 (require 'subr-x)
 
-;;; Default Monospace Canvas Typography
 (defvar san/default-font "Consolas-16"
-  "The default structural font face and pixel size used across standard frames.")
+  "Default font and size for graphical frames.")
 
 (add-to-list 'default-frame-alist `(font . ,san/default-font))
 (set-face-attribute 'default nil :font san/default-font)
-
-;;; Proportional Pitch & Icon Fontsets Configuration
-(use-package mixed-pitch
-  :ensure t
-  :defer t
-  :hook (text-mode . mixed-pitch-mode))
 
 (use-package nerd-icons
   :ensure t
@@ -26,54 +20,43 @@
 
 (set-fontset-font t 'symbol (font-spec :family "Symbols Nerd Font Mono"))
 
-;;; WSL2 Automatic Font Aggregation Layer
+;;; WSL: link Windows' font directories into fontconfig so Windows-only
+;;; fonts (like Consolas above) are visible to Emacs.
 (defun san/setup-wsl-fonts ()
-  "Interrogate the host operating system and link Windows fonts directly into WSL."
-  (when (san/wsl-p)
-    (let* ((config-dir (expand-file-name "~/.config/fontconfig"))
-           (config-file (expand-file-name "fonts.conf" config-dir)))
-      (unless (file-exists-p config-file)
-        (let* ((win-user (condition-case err
-                             (let ((win-user (or (ignore-errors 
-                                                   (string-trim (shell-command-to-string "cmd.exe /c echo %USERNAME%")))
-                                                 "")))
-                               (when (string-empty-p win-user)
-                                 (display-warning 'san-fonts "Could not detect Windows user" :warning)))
-                           (error (progn (display-warning 'san-fonts 
-                                                          "Failed to retrieve Windows username for font setup"
-                                                          :warning)
-                                nil))))
-               (sys-fonts "/mnt/c/Windows/Fonts")
-               (user-fonts (format "/mnt/c/Users/%s/AppData/Local/Microsoft/Windows/Fonts" win-user)))
-          (unless (file-directory-p config-dir)
-            (make-directory config-dir t))
-          (with-temp-file config-file
-            (insert "<?xml version=\"1.0\"?>\n")
-            (insert "<!DOCTYPE fontconfig SYSTEM \"fonts.dtd\">\n")
-            (insert "<fontconfig>\n")
-            (insert (format "  <dir>%s</dir>\n" sys-fonts))
-            (when (file-exists-p user-fonts)
-              (insert (format "  <dir>%s</dir>\n" user-fonts)))
-            (insert "</fontconfig>\n"))
-          (message "WSL Fontconfig configuration missing: Host mappings generated.")
-          (condition-case err
-              (start-process "fc-cache-wsl" nil "fc-cache" "-f")
-            (file-not-found (display-warning 'san-fonts "fc-cache not found" :warning))))))))
-
-(defun san/setup-wsl-fonts-deferred ()
-  "Defer WSL font setup to reduce startup time."
-  (run-with-idle-timer 5 nil #'san/setup-wsl-fonts))
+  "Generate ~/.config/fontconfig/fonts.conf pointing at the Windows font dirs."
+  (let* ((config-dir (expand-file-name "~/.config/fontconfig"))
+         (config-file (expand-file-name "fonts.conf" config-dir))
+         (win-user (san/get-windows-username))
+         (sys-fonts "/mnt/c/Windows/Fonts")
+         (user-fonts (and win-user (format "/mnt/c/Users/%s/AppData/Local/Microsoft/Windows/Fonts" win-user))))
+    (cond
+     ((file-exists-p config-file) nil)
+     ((not win-user)
+      (display-warning 'san-fonts "Could not detect Windows username; skipping font linking." :warning))
+     (t
+      (make-directory config-dir t)
+      (with-temp-file config-file
+        (insert "<?xml version=\"1.0\"?>\n"
+                "<!DOCTYPE fontconfig SYSTEM \"fonts.dtd\">\n"
+                "<fontconfig>\n"
+                (format "  <dir>%s</dir>\n" sys-fonts))
+        (when (file-directory-p user-fonts)
+          (insert (format "  <dir>%s</dir>\n" user-fonts)))
+        (insert "</fontconfig>\n"))
+      (message "Generated %s" config-file)
+      (if (executable-find "fc-cache")
+          (start-process "fc-cache-wsl" nil "fc-cache" "-f")
+        (display-warning 'san-fonts "fc-cache not found; run it manually to pick up the new fonts.conf." :warning))))))
 
 (when (san/wsl-p)
-  (add-hook 'emacs-startup-hook #'san/setup-wsl-fonts-deferred))
+  (add-hook 'emacs-startup-hook
+            (lambda () (run-with-idle-timer 5 nil #'san/setup-wsl-fonts))))
 
-
-;;; Malayalam Script Typography Engine
+;;; Malayalam fallback, so it doesn't render in the default (Latin) font
 (defun san/set-malayalam-font (frame)
-  "Configure high-legibility font mappings for Malayalam script sequences inside FRAME."
-  (with-selected-frame frame
-    (when (display-graphic-p frame)
-      (set-fontset-font t '(#x0D00 . #x0D7F) (font-spec :family "Chilanka")))))
+  "Map the Malayalam Unicode block to Chilanka on FRAME."
+  (when (display-graphic-p frame)
+    (set-fontset-font t '(#x0D00 . #x0D7F) (font-spec :family "Chilanka") frame)))
 
 (add-hook 'after-make-frame-functions #'san/set-malayalam-font)
 (san/set-malayalam-font (selected-frame))

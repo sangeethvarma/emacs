@@ -1,35 +1,31 @@
-;;; san-keybindings.el --- Modal Editing Engine & Global Keymaps -*- lexical-binding: t -*-
+;;; san-keybindings.el --- Meow modal editing (Dvorak) -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; This module establishes the core input mechanics and modal workspace layout.
+;; Meow normal/leader keymaps laid out for Dvorak, plus ace-window for
+;; spatial window switching.
 
 ;;; Code:
 
-;;; Native Case Transformations & String Inversion
 (keymap-global-set "M-u" #'upcase-dwim)
 (keymap-global-set "M-l" #'downcase-dwim)
 
 (defun san/toggle-case ()
-  "Invert the casing of all characters within the currently active region."
+  "Invert the case of every character in the active region."
   (interactive)
-  (if (not (use-region-p))
-      (user-error "No active region detected to toggle case")
-    (let* ((beg (region-beginning))
-           (end (region-end))
-           (input (buffer-substring-no-properties beg end))
-           (len (length input))
-           (output (make-string len 0)))
-      (dotimes (i len)
-        (let ((char (aref input i)))
-          (aset output i (if (eq char (downcase char)) 
-                             (upcase char) 
-                           (downcase char)))))
-      (delete-region beg end)
-      (insert output))))
+  (unless (use-region-p)
+    (user-error "No active region"))
+  (let* ((beg (region-beginning))
+         (end (region-end))
+         (text (buffer-substring-no-properties beg end))
+         (flipped (make-string (length text) 0)))
+    (dotimes (i (length text))
+      (let ((c (aref text i)))
+        (aset flipped i (if (eq c (downcase c)) (upcase c) (downcase c)))))
+    (delete-region beg end)
+    (insert flipped)))
 
-;;; Meow Modal Editing Engine (Dvorak Layout Profile)
 (defun meow-setup-dvorak ()
-  "Define positional navigation, expansion bounds, and text manipulation keys for Dvorak."
+  "Bind Meow's leader and normal-state keymaps to Dvorak key positions."
   (meow-leader-define-key
    '("1" . meow-digit-argument)
    '("2" . meow-digit-argument)
@@ -43,7 +39,7 @@
    '("0" . meow-digit-argument)
    '("-" . negative-argument)
    '("<SPC>" . just-one-space))
-  
+
   (meow-normal-define-key
    '("0" . meow-expand-0)
    '("9" . meow-expand-9)
@@ -119,21 +115,20 @@
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-dvorak))
   (meow-global-mode 1))
 
-;;; Spatial Window Switching Layer (Ace-Window Routing)
+;;; Ace-window: keys on the Dvorak home row
+(defun san/other-window ()
+  "`other-window' on the first press; a second press in a row switches
+via `ace-window' instead, for jumping to a specific non-adjacent window."
+  (interactive)
+  (if (eq last-command #'san/other-window)
+      (ace-window 1)
+    (other-window 1)))
+
 (use-package ace-window
   :ensure t
-  :config
-  ;; Target specific accessible key parameters matching home-row focus points
-  (setq aw-keys '(?h ?u ?a ?s ?e ?t ?o ?n))
-  
-  (defun san/other-window ()
-    "Intelligent context window switcher."
-    (interactive)
-    (if (eq last-command #'san/other-window) 
-        (ace-window 1) 
-      (other-window 1)))
-  
-  :bind (("M-o" . san/other-window)))
+  :custom
+  (aw-keys '(?h ?u ?a ?s ?e ?t ?o ?n))
+  :bind ("M-o" . san/other-window))
 
 (provide 'san-keybindings)
 ;;; san-keybindings.el ends here
