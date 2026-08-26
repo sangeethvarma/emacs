@@ -27,6 +27,10 @@
 (defvar san-archive-dir (expand-file-name "Archive/" san-vault-root)
   "Cold storage, excluded from active search indexes.")
 
+(defvar san-whiteboard-dir (expand-file-name "whiteboard-photos/" san-inbox-dir)
+  "Drop folder for phone photos of the desk/bedroom/living-room whiteboards
+(synced in via Syncthing), reviewed and transcribed into the inbox.")
+
 (defvar san-windows-home-dir
   (format "/mnt/c/Users/%s/" (or (san/get-windows-username) "sangeeth"))
   "Windows user home directory, reachable from WSL.")
@@ -41,7 +45,7 @@
 (defun san/validate-para-directories ()
   "Create any PARA area directories that don't exist yet."
   (dolist (dir (list san-personal-dir san-phd-dir san-startup-dir
-                     san-inbox-dir san-sandbox-dir))
+                     san-inbox-dir san-sandbox-dir san-whiteboard-dir))
     (unless (file-directory-p dir)
       (make-directory dir t))))
 
@@ -62,6 +66,7 @@
 (san/define-dir-opener startup san-startup-dir "Open the Iterrate area in Dired.")
 (san/define-dir-opener inbox san-inbox-dir "Open the Inbox in Dired.")
 (san/define-dir-opener sandbox san-sandbox-dir "Open the Sandbox in Dired.")
+(san/define-dir-opener whiteboard san-whiteboard-dir "Open the whiteboard-photo drop folder in Dired.")
 (san/define-dir-opener windows san-windows-home-dir "Open the Windows home folder in Dired.")
 (san/define-dir-opener emacs-config user-emacs-directory "Open the Emacs config directory in Dired.")
 
@@ -70,6 +75,7 @@
 (keymap-global-set "C-c d i" #'san/open-startup-dir)
 (keymap-global-set "C-c d d" #'san/open-inbox-dir)
 (keymap-global-set "C-c d r" #'san/open-sandbox-dir)
+(keymap-global-set "C-c d b" #'san/open-whiteboard-dir)
 (keymap-global-set "C-c d w" #'san/open-windows-dir)
 (keymap-global-set "C-c d e" #'san/open-emacs-config-dir)
 

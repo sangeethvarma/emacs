@@ -77,6 +77,9 @@
 (require 'san-org-images)
 (require 'san-org-latex)
 
+;; RSS
+(require 'san-elfeed)
+
 ;; AI
 (require 'san-llm)
 

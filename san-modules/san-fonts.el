@@ -62,5 +62,32 @@
 (san/set-malayalam-font (selected-frame))
 (add-to-list 'face-font-rescale-alist '("Chilanka" . 1.2))
 
+;;; Emoji: Segoe UI Emoji (Windows font, linked in via san/setup-wsl-fonts
+;;; above). Ranges cover every emoji block actually in use across the
+;;; config's org-agenda dashboards, capture templates, etc.
+(defvar san/emoji-font "Segoe UI Emoji"
+  "Font used for emoji glyphs.")
+
+(defvar san--emoji-unicode-ranges
+  '((#x2300  . #x23FF)   ; Miscellaneous Technical (⏰ ⏳)
+    (#x2600  . #x27BF)   ; Miscellaneous Symbols + Dingbats
+    (#x1F300 . #x1F5FF)  ; Miscellaneous Symbols and Pictographs
+    (#x1F600 . #x1F64F)  ; Emoticons
+    (#x1F680 . #x1F6FF)  ; Transport and Map Symbols
+    (#x1F900 . #x1F9FF)  ; Supplemental Symbols and Pictographs
+    (#x1FA70 . #x1FAFF)) ; Symbols and Pictographs Extended-A (🪤)
+  "Unicode ranges mapped to `san/emoji-font'.")
+
+(defun san/set-emoji-font (frame)
+  "Map emoji Unicode ranges to `san/emoji-font' on FRAME.
+Prepended rather than replacing, so glyphs missing from
+`san/emoji-font' still fall back to whatever Emacs would have used."
+  (when (display-graphic-p frame)
+    (dolist (range san--emoji-unicode-ranges)
+      (set-fontset-font t range (font-spec :family san/emoji-font) frame 'prepend))))
+
+(add-hook 'after-make-frame-functions #'san/set-emoji-font)
+(san/set-emoji-font (selected-frame))
+
 (provide 'san-fonts)
 ;;; san-fonts.el ends here

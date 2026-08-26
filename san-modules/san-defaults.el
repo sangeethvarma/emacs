@@ -10,6 +10,11 @@
 (keymap-global-set "C-h C-h" #'delete-backward-char)
 (keymap-global-set "M-d" #'kill-word)
 
+;; Fresh Arch/WSL installs don't set a GECOS full name, so this otherwise
+;; falls back to something unhelpful (e.g. the hostname) in exported
+;; documents (LaTeX \author{}, etc).
+(setq user-full-name "Sangeeth")
+
 (delete-selection-mode 1)
 (put 'dired-find-alternate-file 'disabled nil)
 

@@ -1,101 +1,51 @@
-;;; san-project-mgmt.el --- Task & Project Management System -*- lexical-binding: t -*-
+;;; san-project-mgmt.el --- Org-agenda task system for the PARA areas -*- lexical-binding: t -*-
 
 ;;; Commentary:
-;; This module manages task prioritization, tracking, and agenda construction.
-;; It links Org-mode's task subsystem directly into the PARA workflow.
+;; TODO workflow, agenda dashboards, refiling, and auto-archiving on
+;; completion.
 
 ;;; Code:
 
 (require 'org)
 (require 'org-agenda)
-(unless (require 'san-paths nil t)
-  (error "san-paths module not found"))
+(require 'san-paths)
 
-;;; Unified Task File Registries
-;; ---------------------------------------------------------------------
-(defvar san-inbox-agenda-file    (expand-file-name "inbox.org" san-inbox-dir)
-  "Path to the universal catchment task file.")
-
-(defvar san-personal-agenda-file (expand-file-name "personal-todo.org" san-personal-dir)
-  "Path to the personal life and health task file.")
-
-(defvar san-phd-agenda-file      (expand-file-name "phd-todo.org" san-phd-dir)
-  "Path to the doctoral academic research task file.")
-
-(defvar san-iterrate-agenda-file (expand-file-name "iterrate-todo.org" san-startup-dir)
-  "Path to the startup operational task file.")
-
-(defvar san-sandbox-agenda-file  (expand-file-name "sandbox-todo.org" san-sandbox-dir)
-  "Path to the script playground and automation task file.")
+;;; Agenda files
+(defvar san-inbox-agenda-file    (expand-file-name "inbox.org" san-inbox-dir))
+(defvar san-personal-agenda-file (expand-file-name "personal-todo.org" san-personal-dir))
+(defvar san-phd-agenda-file      (expand-file-name "phd-todo.org" san-phd-dir))
+(defvar san-iterrate-agenda-file (expand-file-name "iterrate-todo.org" san-startup-dir))
+(defvar san-sandbox-agenda-file  (expand-file-name "sandbox-todo.org" san-sandbox-dir))
 
 (defconst san-agenda-files-list
-  (list san-inbox-agenda-file
-        san-phd-agenda-file
-        san-iterrate-agenda-file
-        san-personal-agenda-file
-        san-sandbox-agenda-file)
-  "List of all agenda files for the PARA system.")
+  (list san-inbox-agenda-file san-phd-agenda-file san-iterrate-agenda-file
+        san-personal-agenda-file san-sandbox-agenda-file)
+  "All PARA area task files.")
 
-(defvar san-agenda-files-cache nil
-  "Cached list of agenda files to avoid repeated file checks.")
+(setq org-agenda-files (seq-filter #'file-exists-p san-agenda-files-list))
 
-(defun san/validate-and-cache-agenda-files ()
-  "Validate agenda files exist and cache the list."
-  (setq san-agenda-files-cache
-        (cl-remove-if-not #'file-exists-p san-agenda-files-list))
-  (setq org-agenda-files san-agenda-files-cache))
-
-;; Use file-notify to refresh cache when files change
-(defun san/setup-agenda-file-monitoring ()
-  "Set up file notifications for agenda files."
-  (dolist (file san-agenda-files-list)
-    (when (file-exists-p file)
-      (file-notify-add-watch file '(change) 
-                             (lambda (event) 
-                               (san/validate-and-cache-agenda-files))))))
-
-(add-hook 'emacs-startup-hook #'san/validate-and-cache-agenda-files)
-(add-hook 'emacs-startup-hook #'san/setup-agenda-file-monitoring)
-
-;; Initialize agenda files globally
-(setq org-agenda-files san-agenda-files-list)
-
-;;; Enhanced Org-Super-Agenda Configuration
-;; ---------------------------------------------------------------------
+;;; Org-Super-Agenda
 (use-package org-super-agenda
   :ensure t
   :after org-agenda
-  :config
+  :init
   (org-super-agenda-mode 1)
-  (setq org-super-agenda-groups
-	'((:discard (:tag ("someday" "maybe")))
-          (:name "🔥 Critical Priority"
-		 :priority "A")
-          (:name "⏰ Due Soon"
-		 :deadline past
-		 :deadline today
-		 :deadline future)
-          (:name "🏃 In Progress"
-		 :todo "STRT")
-          (:name "⏳ Blocked"
-		 :todo "WAIT")
-          (:name "🎓 Academic Work"
-		 :tag "research"
-		 :tag "academic")
-          (:name "🚀 Startup Projects"
-		 :tag "startup"
-		 :tag "business")
-          (:name "🌱 Personal"
-		 :tag "health"
-		 :tag "life"
-		 :tag "personal"))))
+  :custom
+  (org-super-agenda-groups
+   '((:discard (:tag ("someday" "maybe")))
+     (:name "🔥 Critical Priority" :priority "A")
+     (:name "⏰ Due Soon" :deadline past :deadline today :deadline future)
+     (:name "🏃 In Progress" :todo "STRT")
+     (:name "⏳ Blocked" :todo "WAIT")
+     (:name "🎓 Academic Work" :tag "research" :tag "academic")
+     (:name "🚀 Startup Projects" :tag "startup" :tag "business")
+     (:name "🌱 Personal" :tag "health" :tag "life" :tag "personal"))))
 
-;;; Org-Mode Task System Configuration
-;; ---------------------------------------------------------------------
+;;; Org task system
 (use-package org
   :ensure nil
   :custom
-  (org-todo-keywords 
+  (org-todo-keywords
    '((sequence "TODO(t)" "STRT(s)" "WAIT(w@/!)" "|" "DONE(d!)" "CANC(c@)")))
   (org-todo-state-tags-triggers
    '(("CANC" ("CANCELLED" . t))
@@ -106,173 +56,160 @@
   (org-refile-use-outline-path 'file)
   (org-outline-path-complete-in-steps nil))
 
-;;; Project Tracking (stuck-project detection)
-;; ---------------------------------------------------------------------
-;; A "project" is any headline tagged :project: containing TODO/STRT children.
-;; A project with none is "stuck" — surfaced automatically below.
-(setq org-stuck-projects
-      '("+project-someday-maybe" ("TODO" "STRT") nil ""))
+;; A "project" is a headline tagged :project: with TODO/STRT children;
+;; one with none is "stuck" and surfaced in the dashboard below.
+(setq org-stuck-projects '("+project-someday-maybe" ("TODO" "STRT") nil ""))
 
-;;; Agenda View Configuration
-;; ---------------------------------------------------------------------
+;;; Agenda dashboards
 (use-package org-agenda
   :ensure nil
   :commands (org-agenda)
-  :config
-  ;; Custom agenda view definitions
-  (setq org-agenda-custom-commands
-        '((" " "🎯 Daily Dashboard"
-           ((agenda "" ((org-agenda-span 1)
-                        (org-agenda-start-on-weekday nil)
-                        (org-agenda-show-all-dates nil)
-                        (org-agenda-overriding-header "📅 Today's Schedule")))
-	    (stuck "" ((org-agenda-overriding-header "🪤 Stuck Projects")))
-            (todo "STRT" ((org-agenda-overriding-header "🔥 In Progress")))
-	    (todo "WAIT" ((org-agenda-overriding-header "⏳ Waiting For")))
-            (tags-todo "+PRIORITY=\"A\"" ((org-agenda-overriding-header "🔴 High Priority")))
-            (tags "inbox" ((org-agenda-overriding-header "📥 Inbox Items")))))
-          
-          ("n" "🎯 Next Actions" 
-           ((todo "TODO" ((org-agenda-overriding-header "📋 Ready to Start")))
-            (todo "STRT" ((org-agenda-overriding-header "🏃 In Progress")))
-            (tags-todo "WAIT" ((org-agenda-overriding-header "⏳ Blocked/Waiting")))
-            (tags "+SCHEDULED<today" ((org-agenda-overriding-header "⏰ Scheduled Today")))))
-          
-          ("w" "💼 Work Context"
-           ((tags-todo "research|admin" 
-		       ((org-agenda-overriding-header "🎓 PhD Work")))
-            (tags-todo "startup" 
-		       ((org-agenda-overriding-header "🚀 Startup Tasks")))
-            (todo "WAIT" ((org-agenda-overriding-header "⏳ Awaiting Response")))))
-          
-          ("l" "🌱 Personal Context"
-           ((tags-todo "health" 
-		       ((org-agenda-overriding-header "💪 Health & Fitness")))
-            (tags-todo "life" 
-		       ((org-agenda-overriding-header "🏠 Life Management")))
-            (agenda "" ((org-agenda-span 3)
-			(org-agenda-start-on-weekday nil)
-			(org-agenda-overriding-header "📅 Personal Schedule")))))
-          
-          ("s" "📊 Status Overview"
-           ((todo "STRT" ((org-agenda-overriding-header "🏃 Currently Working On")))
-	    (todo "WAIT" ((org-agenda-overriding-header "⏳ Stuck/Waiting")))
-            (todo "TODO" ((org-agenda-overriding-header "📋 Backlog")))
-            (tags "+TIMESTAMP_IA>today-7" 
-                  ((org-agenda-overriding-header "📆 Recently Added"))))
-           ((org-agenda-sorting-strategy '(todo-state-up priority-down))))
-          
-          ;; Super Dashboard view
-          ("S" "🔍 Super Dashboard"
-           ((agenda "" ((org-agenda-span 1)))
-            (alltodo "" ((org-super-agenda-groups org-super-agenda-groups)))))))
+  :custom
+  (org-agenda-custom-commands
+   '((" " "🎯 Daily Dashboard"
+      ((agenda "" ((org-agenda-span 1)
+                   (org-agenda-start-on-weekday nil)
+                   (org-agenda-show-all-dates nil)
+                   (org-agenda-overriding-header "📅 Today's Schedule")))
+       (stuck "" ((org-agenda-overriding-header "🚧 Stuck Projects")))
+       (todo "STRT" ((org-agenda-overriding-header "🔥 In Progress")))
+       (todo "WAIT" ((org-agenda-overriding-header "⏳ Waiting For")))
+       (tags-todo "+PRIORITY=\"A\"" ((org-agenda-overriding-header "🔴 High Priority")))
+       (todo "TODO" ((org-agenda-overriding-header "📥 Inbox Items")
+                     (org-agenda-files (list san-inbox-agenda-file)))))
+      ((org-super-agenda-groups nil)))
 
-  ;; Agenda display configuration
-  (setq org-agenda-block-separator ?─)
-  (setq org-agenda-time-grid '((daily today require-timed) 
-			       (800 1000 1200 1400 1600 1800 2000)
-			       "......" 
-			       "----------------"))
-  (setq org-agenda-current-time-string "───────────── Now ─────────────")
-  (setq org-agenda-show-current-time-in-grid t)
-  (setq org-agenda-span 'week)
-  (setq org-agenda-start-on-weekday 1)
-  (setq org-agenda-sorting-strategy '(todo-state-down priority-down time-up))
-  (setq org-agenda-window-setup 'current-window)
-  (setq org-agenda-sticky t)
-  (setq org-agenda-start-with-clockreport-mode t)
-  (setq org-agenda-clockreport-parameter-plist '(:link t :maxlevel 3 :fileskip0 t)))
+     ("p" "📁 Active Projects"
+      ((tags "+project-someday-maybe" ((org-agenda-overriding-header "📁 All Active Projects"))))
+      ((org-super-agenda-groups nil)))
 
-;;; Workflow Enhancement Functions
-;; ---------------------------------------------------------------------
+     ("R" "🔎 Weekly Review"
+      ((agenda "" ((org-agenda-span 14)
+                   (org-agenda-start-on-weekday nil)
+                   (org-agenda-overriding-header "📅 Next 2 Weeks (Deadlines & Scheduled)")))
+       (stuck "" ((org-agenda-overriding-header "🚧 Stuck Projects")))
+       (todo "TODO" ((org-agenda-overriding-header "📥 Unprocessed Inbox")
+                     (org-agenda-files (list san-inbox-agenda-file))))
+       (tags "+TIMESTAMP_IA<today-14" ((org-agenda-overriding-header "🧪 Sandbox: Needs Triage (14+ days untouched)")
+                                        (org-agenda-files (list san-sandbox-agenda-file)))))
+      ((org-super-agenda-groups nil)))
+
+     ("n" "🎯 Next Actions"
+      ((todo "TODO" ((org-agenda-overriding-header "📋 Ready to Start")))
+       (todo "STRT" ((org-agenda-overriding-header "🏃 In Progress")))
+       (tags-todo "WAIT" ((org-agenda-overriding-header "⏳ Blocked/Waiting")))
+       (tags "+SCHEDULED<today" ((org-agenda-overriding-header "⏰ Scheduled Today"))))
+      ((org-super-agenda-groups nil)))
+
+     ("w" "💼 Work Context"
+      ((tags-todo "research|admin" ((org-agenda-overriding-header "🎓 PhD Work")))
+       (tags-todo "startup" ((org-agenda-overriding-header "🚀 Startup Tasks")))
+       (todo "WAIT" ((org-agenda-overriding-header "⏳ Awaiting Response"))))
+      ((org-super-agenda-groups nil)))
+
+     ("l" "🌱 Personal Context"
+      ((tags-todo "health" ((org-agenda-overriding-header "💪 Health & Fitness")))
+       (tags-todo "life" ((org-agenda-overriding-header "🏠 Life Management")))
+       (agenda "" ((org-agenda-span 3)
+                   (org-agenda-start-on-weekday nil)
+                   (org-agenda-overriding-header "📅 Personal Schedule"))))
+      ((org-super-agenda-groups nil)))
+
+     ("s" "📊 Status Overview"
+      ((todo "STRT" ((org-agenda-overriding-header "🏃 Currently Working On")))
+       (todo "WAIT" ((org-agenda-overriding-header "⏳ Stuck/Waiting")))
+       (todo "TODO" ((org-agenda-overriding-header "📋 Backlog")))
+       (tags "+TIMESTAMP_IA>today-7" ((org-agenda-overriding-header "📆 Recently Added"))))
+      ((org-agenda-sorting-strategy '(todo-state-up priority-down))
+       (org-super-agenda-groups nil)))
+
+     ("S" "🔍 Super Dashboard"
+      ((agenda "" ((org-agenda-span 1)))
+       (alltodo "" ((org-super-agenda-groups org-super-agenda-groups)))))))
+  (org-agenda-block-separator ?─)
+  (org-agenda-time-grid '((daily today require-timed)
+                          (800 1000 1200 1400 1600 1800 2000)
+                          "......" "----------------"))
+  (org-agenda-current-time-string "───────────── Now ─────────────")
+  (org-agenda-show-current-time-in-grid t)
+  (org-agenda-span 'week)
+  (org-agenda-start-on-weekday 1)
+  (org-agenda-sorting-strategy '(todo-state-down priority-down time-up))
+  (org-agenda-window-setup 'current-window)
+  (org-agenda-sticky t)
+  (org-agenda-start-with-clockreport-mode t)
+  (org-agenda-clockreport-parameter-plist '(:link t :maxlevel 3 :fileskip0 t)))
+
+;;; Agenda workflow commands
 (defun san/agenda-mark-and-refile ()
-  "Mark current agenda item and refile immediately."
+  "Mark the item at point STRT and refile it."
   (interactive)
   (org-agenda-todo "STRT")
   (org-agenda-refile))
 
 (defun san/agenda-mark-done-and-archive ()
-  "Mark current agenda item done and archive it."
+  "Mark the item at point DONE and archive it."
   (interactive)
   (org-agenda-todo "DONE")
   (org-agenda-archive-default-with-confirmation))
 
 (defun san/agenda-snooze-item ()
-  "Snooze current agenda item for 1 day."
+  "Reschedule the item at point one day forward."
   (interactive)
   (org-agenda-schedule nil "+1d"))
 
-;; Enhanced workflow keybindings
 (with-eval-after-load 'org-agenda
-  (define-key org-agenda-mode-map (kbd "C-c r") 'san/agenda-mark-and-refile)
-  (define-key org-agenda-mode-map (kbd "C-c d") 'san/agenda-mark-done-and-archive)
-  (define-key org-agenda-mode-map (kbd "C-c z") 'san/agenda-snooze-item))
+  (define-key org-agenda-mode-map (kbd "C-c r") #'san/agenda-mark-and-refile)
+  (define-key org-agenda-mode-map (kbd "C-c d") #'san/agenda-mark-done-and-archive)
+  (define-key org-agenda-mode-map (kbd "C-c z") #'san/agenda-snooze-item))
 
-;; Dired Resource Refiling System
-;; ---------------------------------------------------------------------
-(defvar san-resource-folder-alist nil
-  "Association list mapping PARA areas to their Resource folders.")
-
-(setq san-resource-folder-alist
-      `(("🌱 Personal Resources" . ,(expand-file-name "Resources/" san-personal-dir))
-        ("🎓 PhD Resources"      . ,(expand-file-name "Resources/" san-phd-dir))
-        ("🚀 Startup Resources"  . ,(expand-file-name "Resources/" san-startup-dir))
-        ("🧪 Sandbox Resources"  . ,(expand-file-name "Resources/" san-sandbox-dir))))
-
-(defun san/dired-refile-to-resource ()
-  "Refile marked files into a chosen PARA Resource folder."
-  (interactive)
-  (unless (derived-mode-p 'dired-mode)
-    (user-error "Not in a Dired buffer"))
-  
-  (let* ((files (dired-get-marked-files))
-         (count (length files)))
-    (if (null files)
-        (message "No files found to refile.")
-      (let* ((prompt (if (= count 1)
-                         (format "Refile '%s' to: " (file-name-nondirectory (car files)))
-		       (format "Refile %d marked files to: " count)))
-             (chosen-key (completing-read prompt
-                                          (mapcar #'car san-resource-folder-alist)
-                                          nil t))
-             (target-dir (cdr (assoc chosen-key san-resource-folder-alist))))
-        
-        ;; Create destination directory if needed
-        (unless (file-directory-p target-dir)
-          (message "Creating resource directory: %s" target-dir)
-          (make-directory target-dir t))
-        
-        ;; Move files to target directory
-        (dolist (file files)
-          (let* ((short-name (file-name-nondirectory file))
-                 (destination (expand-file-name short-name target-dir)))
-            (condition-case err
-                (rename-file file destination)
-	      (file-already-exists
-	       (if (yes-or-no-p (format "File %s exists. Overwrite? " 
-                                        (file-name-nondirectory destination)))
-                   (rename-file file destination t)
-                 (message "Skipped: %s" (file-name-nondirectory file)))))))
-        
-        (revert-buffer)
-        (message "Refiled %d file(s) to %s" count chosen-key)))))
-
-;;; Auto-Archive on Completion
-;;; ---------------------------------------------------------------------
+;;; Auto-archive on completion
 (defun san/auto-archive-on-done ()
   "Archive the current subtree when it's marked DONE or CANC."
   (when (member (org-get-todo-state) '("DONE" "CANC"))
     (org-archive-subtree)
-    ;; keep point sane after the subtree moves
     (goto-char (org-log-beginning))))
 
 (add-hook 'org-after-todo-state-change-hook #'san/auto-archive-on-done)
 
-;; Dired integration
+;;; Dired -> PARA Resources refiling
+(defvar san-resource-folder-alist
+  `(("🌱 Personal Resources" . ,(expand-file-name "Resources/" san-personal-dir))
+    ("🎓 PhD Resources"      . ,(expand-file-name "Resources/" san-phd-dir))
+    ("🚀 Startup Resources"  . ,(expand-file-name "Resources/" san-startup-dir))
+    ("🧪 Sandbox Resources"  . ,(expand-file-name "Resources/" san-sandbox-dir)))
+  "PARA area name -> its Resources/ folder.")
+
+(defun san/dired-refile-to-resource ()
+  "Move the marked files in this Dired buffer into a chosen PARA Resources folder."
+  (interactive)
+  (unless (derived-mode-p 'dired-mode)
+    (user-error "Not in a Dired buffer"))
+  (let* ((files (dired-get-marked-files))
+         (count (length files)))
+    (when (null files)
+      (user-error "No files marked"))
+    (let* ((prompt (if (= count 1)
+                        (format "Refile '%s' to: " (file-name-nondirectory (car files)))
+                      (format "Refile %d marked files to: " count)))
+           (chosen-key (completing-read prompt (mapcar #'car san-resource-folder-alist) nil t))
+           (target-dir (cdr (assoc chosen-key san-resource-folder-alist))))
+      (unless (file-directory-p target-dir)
+        (make-directory target-dir t))
+      (dolist (file files)
+        (let ((destination (expand-file-name (file-name-nondirectory file) target-dir)))
+          (condition-case nil
+              (rename-file file destination)
+            (file-already-exists
+             (if (yes-or-no-p (format "%s exists. Overwrite? " (file-name-nondirectory destination)))
+                 (rename-file file destination t)
+               (message "Skipped: %s" (file-name-nondirectory file)))))))
+      (revert-buffer)
+      (message "Refiled %d file(s) to %s" count chosen-key))))
+
 (with-eval-after-load 'dired
   (define-key dired-mode-map (kbd "C-c f R") #'san/dired-refile-to-resource))
 
-;; Global keybinding
 (keymap-global-set "C-c a" #'org-agenda)
 
 (provide 'san-project-mgmt)
