@@ -45,7 +45,8 @@
 (defun san/validate-para-directories ()
   "Create any PARA area directories that don't exist yet."
   (dolist (dir (list san-personal-dir san-phd-dir san-startup-dir
-                     san-inbox-dir san-sandbox-dir san-whiteboard-dir))
+                     san-inbox-dir san-sandbox-dir san-whiteboard-dir
+                     san-archive-dir))
     (unless (file-directory-p dir)
       (make-directory dir t))))
 
@@ -69,6 +70,7 @@
 (san/define-dir-opener whiteboard san-whiteboard-dir "Open the whiteboard-photo drop folder in Dired.")
 (san/define-dir-opener windows (san/windows-home-dir) "Open the Windows home folder in Dired.")
 (san/define-dir-opener emacs-config user-emacs-directory "Open the Emacs config directory in Dired.")
+(san/define-dir-opener archive san-archive-dir "Open the Archive area in Dired.")
 
 (keymap-global-set "C-c d p" #'san/open-phd-dir)
 (keymap-global-set "C-c d m" #'san/open-personal-dir)
@@ -78,6 +80,7 @@
 (keymap-global-set "C-c d b" #'san/open-whiteboard-dir)
 (keymap-global-set "C-c d w" #'san/open-windows-dir)
 (keymap-global-set "C-c d e" #'san/open-emacs-config-dir)
+(keymap-global-set "C-c d a" #'san/open-archive-dir)
 
 (provide 'san-paths)
 ;;; san-paths.el ends here
