@@ -147,11 +147,10 @@
   (org-agenda-todo "STRT")
   (org-agenda-refile))
 
-(defun san/agenda-mark-done-and-archive ()
-  "Mark the item at point DONE and archive it."
+(defun san/agenda-mark-done ()
+  "Mark the item at point DONE."
   (interactive)
-  (org-agenda-todo "DONE")
-  (org-agenda-archive-default-with-confirmation))
+  (org-agenda-todo "DONE"))
 
 (defun san/agenda-snooze-item ()
   "Reschedule the item at point one day forward."
@@ -160,7 +159,7 @@
 
 (with-eval-after-load 'org-agenda
   (define-key org-agenda-mode-map (kbd "C-c r") #'san/agenda-mark-and-refile)
-  (define-key org-agenda-mode-map (kbd "C-c d") #'san/agenda-mark-done-and-archive)
+  (define-key org-agenda-mode-map (kbd "C-c x") #'san/agenda-mark-done)
   (define-key org-agenda-mode-map (kbd "C-c z") #'san/agenda-snooze-item))
 
 ;;; Auto-archive on completion

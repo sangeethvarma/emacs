@@ -8,6 +8,7 @@
 ;;; Code:
 
 (require 'subr-x)
+(require 'san-notes)
 
 (defun san/read-prompt-file (filename fallback)
   "Read a directive's prompt text from FILENAME, or return FALLBACK.

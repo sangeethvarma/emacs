@@ -9,7 +9,7 @@ Organized around PARA methodology:
 
 ## Key Features
 - Modal editing with Meow (Dvorak optimized)
-- Minad completion stack (Vertico/Corfu/Consult)
+- Vertico/Corfu/Consult completion stack
 - Org-mode based task management
 - Cross-platform WSL integration
 
@@ -20,7 +20,7 @@ Organized around PARA methodology:
 4. `san-fonts.el` - Typography and font configuration
 5. `san-appearance.el` - Visual interface
 6. `san-keybindings.el` - Meow modal editing
-7. `san-completions.el` - Minad completion stack
+7. `san-completions.el` - Vertico/Corfu/Consult completion stack
 8. `san-minibuffer.el` - History persistence
 9. `san-notes.el` - Denote note-taking system
 10. `san-citation.el` - Academic bibliography
@@ -31,5 +31,8 @@ Organized around PARA methodology:
 15. `san-scratch.el` - Persistent scratch buffers
 16. `san-view-files.el` - Document viewers
 17. `san-org-images.el` - Clipboard image integration
-18. `san-llm.el` - AI integration (gptel)
-19. `san-elfeed.el` - RSS reader (disabled)
+18. `san-org-latex.el` - LaTeX/PDF export
+19. `san-elfeed.el` - RSS reader
+20. `san-llm.el` - AI integration (gptel)
+
+

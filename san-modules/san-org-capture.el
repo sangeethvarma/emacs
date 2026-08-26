@@ -7,6 +7,7 @@
 
 (require 'org-capture)
 (require 'san-paths)
+(require 'san-project-mgmt)   ; for san-agenda-files-list
 
 (keymap-global-set "C-c c" #'org-capture)
 

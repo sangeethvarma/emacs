@@ -28,8 +28,7 @@
          ("\\.markdown\\'" . markdown-mode))
   :custom
   (markdown-header-scaling t)
-  (markdown-fontify-code-blocks-natively t)
-  :hook (markdown-mode . markdown-cycle))
+  (markdown-fontify-code-blocks-natively t))
 
 (provide 'san-view-files)
 ;;; san-view-files.el ends here

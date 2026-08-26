@@ -30,7 +30,7 @@
     "C-c n f" "find notes"
     "C-c g" "AI/LLM"
     "C-c g g" "new chat"
-    "C-c g s" "send"
+    "C-c g s" "send selection"
     "C-c g m" "menu"
     "C-c g l" "load conversation"
     "C-c g w" "save conversation"))
