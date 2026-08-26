@@ -31,9 +31,9 @@
   "Drop folder for phone photos of the desk/bedroom/living-room whiteboards
 (synced in via Syncthing), reviewed and transcribed into the inbox.")
 
-(defvar san-windows-home-dir
-  (format "/mnt/c/Users/%s/" (or (san/get-windows-username) "sangeeth"))
-  "Windows user home directory, reachable from WSL.")
+(defun san/windows-home-dir ()
+  "Windows user home directory, reachable from WSL."
+  (format "/mnt/c/Users/%s/" (or (san/get-windows-username) "sangeeth")))
 
 (defun san/validate-vault-root ()
   "Warn if the vault mount isn't there (V: drive not mounted, WSL not up yet, etc)."
@@ -67,7 +67,7 @@
 (san/define-dir-opener inbox san-inbox-dir "Open the Inbox in Dired.")
 (san/define-dir-opener sandbox san-sandbox-dir "Open the Sandbox in Dired.")
 (san/define-dir-opener whiteboard san-whiteboard-dir "Open the whiteboard-photo drop folder in Dired.")
-(san/define-dir-opener windows san-windows-home-dir "Open the Windows home folder in Dired.")
+(san/define-dir-opener windows (san/windows-home-dir) "Open the Windows home folder in Dired.")
 (san/define-dir-opener emacs-config user-emacs-directory "Open the Emacs config directory in Dired.")
 
 (keymap-global-set "C-c d p" #'san/open-phd-dir)

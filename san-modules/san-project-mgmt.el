@@ -97,7 +97,7 @@
      ("n" "🎯 Next Actions"
       ((todo "TODO" ((org-agenda-overriding-header "📋 Ready to Start")))
        (todo "STRT" ((org-agenda-overriding-header "🏃 In Progress")))
-       (tags-todo "WAIT" ((org-agenda-overriding-header "⏳ Blocked/Waiting")))
+       (todo "WAIT" ((org-agenda-overriding-header "⏳ Blocked/Waiting")))
        (tags "+SCHEDULED<today" ((org-agenda-overriding-header "⏰ Scheduled Today"))))
       ((org-super-agenda-groups nil)))
 

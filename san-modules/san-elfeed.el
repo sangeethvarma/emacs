@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 ;; elfeed, with feed subscriptions managed declaratively via an org
-;; file in the PhD area, through elfeed-org.
+;; file in the Inbox, through elfeed-org.
 
 ;;; Code:
 

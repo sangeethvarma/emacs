@@ -43,7 +43,6 @@
 (use-package bibtex
   :ensure nil
   :custom
-  (bibtex-dialect 'biblatex)
   (bibtex-align-at-equal-sign t)
   (bibtex-user-optional-fields
    '(("keywords" "Keywords to describe the entry" "")
