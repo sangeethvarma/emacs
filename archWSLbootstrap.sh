@@ -9,9 +9,6 @@
 
 set -euo pipefail
 
-CONFIG_REPO="https://github.com/sangeethvarma/emacs.git"
-CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/emacs"
-
 log() { printf '\n\033[1;32m==>\033[0m %s\n' "$1"; }
 warn() { printf '\n\033[1;33m!!\033[0m %s\n' "$1"; }
 
@@ -91,23 +88,28 @@ else
     log "Chilanka font already installed, skipping"
 fi
 
-# --- 6. Clone/link the config -----------------------------------------------
-if [ -d "$CONFIG_DIR/.git" ]; then
-    log "Config already present at $CONFIG_DIR, skipping clone"
-elif [ -e "$CONFIG_DIR" ]; then
-    warn "$CONFIG_DIR exists but isn't a git repo -- leaving it alone. Move it aside and re-run if you want a fresh clone."
-else
-    log "Cloning config into $CONFIG_DIR"
-    git clone "$CONFIG_REPO" "$CONFIG_DIR"
-fi
+# --- 6. Linking Windows fonts ----------------------------------------------
+sudo mkdir -p /usr/share/fonts/windows
+sudo ln -s /mnt/c/Windows/Fonts/* /usr/share/fonts/windows/
+sudo fc-cache -fv
 
-# --- 7. Headless first run: pre-install all Elisp packages ------------------
+# --- 7. Clone/link the config -----------------------------------------------
+# if [ -d "$CONFIG_DIR/.git" ]; then
+#     log "Config already present at $CONFIG_DIR, skipping clone"
+# elif [ -e "$CONFIG_DIR" ]; then
+#     warn "$CONFIG_DIR exists but isn't a git repo -- leaving it alone. Move it aside and re-run if you want a fresh clone."
+# else
+#     log "Cloning config into $CONFIG_DIR"
+#     git clone "$CONFIG_REPO" "$CONFIG_DIR"
+# fi
+
+# --- 8. Headless first run: pre-install all Elisp packages ------------------
 # init.el's use-package :ensure t forms install everything from
 # GNU ELPA/MELPA/NonGNU ELPA on first load; do that once here in batch mode
 # so the first interactive launch isn't a multi-minute package-install wait.
-log "Bootstrapping Elisp packages (this can take a few minutes)"
-emacs --batch --eval "(progn (setq user-emacs-directory \"$CONFIG_DIR/\") (load (expand-file-name \"early-init.el\" user-emacs-directory)) (load (expand-file-name \"init.el\" user-emacs-directory)))" || \
-    warn "Batch package bootstrap hit an error -- run 'emacs' interactively to see what's missing, package installs usually still succeed on the next launch."
+# log "Bootstrapping Elisp packages (this can take a few minutes)"
+# emacs --batch --eval "(progn (setq user-emacs-directory \"$CONFIG_DIR/\") (load (expand-file-name \"early-init.el\" user-emacs-directory)) (load (expand-file-name \"init.el\" user-emacs-directory)))" || \
+#     warn "Batch package bootstrap hit an error -- run 'emacs' interactively to see what's missing, package installs usually still succeed on the next launch."
 
 log "Done. Remaining manual steps (see README.md):"
 cat <<'EOF'
