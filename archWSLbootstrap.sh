@@ -16,12 +16,25 @@ if ! grep -qi microsoft /proc/version 2>/dev/null; then
     warn "This doesn't look like WSL (/proc/version has no 'microsoft'). Continuing anyway."
 fi
 
+
 # --- 1. Base system + build toolchain -------------------------------------
 # base-devel: gcc/make/etc, needed to build pdf-tools' epdfinfo and jinx's
 # enchant dynamic module on first `emacs -q` run.
 log "Updating system and installing base packages"
+
+pacman-key --init
+pacman-key --populate archlinux
+
 sudo pacman -Syu --needed --noconfirm \
-    base-devel git curl
+    sudo nano base-devel git curl gnutls
+
+useradd -m -G wheel -s /bin/bash sangeeth
+log "Set password for user sangeeth"
+passwd sangeeth
+
+git config --global credential.helper "/mnt/c/Users/sangeeth/scoop/shims/git-credential-manager.exe"
+
+su - sangeeth
 
 # --- 2. Emacs itself --------------------------------------------------------
 # Official Arch `emacs` package ships native-comp + tree-sitter already built in.
@@ -89,8 +102,8 @@ else
 fi
 
 # --- 6. Linking Windows fonts ----------------------------------------------
-sudo mkdir -p /usr/share/fonts/windows
-sudo ln -s /mnt/c/Windows/Fonts/* /usr/share/fonts/windows/
+sudo mkdir -p $FONT_DIR/windows
+sudo ln -s /mnt/c/Windows/Fonts/* $FONT_DIR/windows/
 sudo fc-cache -fv
 
 # --- 7. Clone/link the config -----------------------------------------------
