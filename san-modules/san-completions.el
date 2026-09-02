@@ -29,7 +29,7 @@
   (corfu-auto t)
   (corfu-auto-prefix 2)
   (corfu-auto-delay 0.1)
-  (corfu-quit-no-match 'always)
+  (corfu-quit-no-match t)
   (corfu-preselect-first t)
   (corfu-on-exact-match nil)
   (corfu-cycle nil)
